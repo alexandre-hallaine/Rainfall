@@ -2,7 +2,7 @@
 
 ## Hint
 
-Use **gdb** and check the main function find the exploit !
+Use **gdb** and check the main function to find the exploit !
 
 ## Answer
 
@@ -13,19 +13,19 @@ total 732
 -rwsr-x---+ 1 level1 users 747441 Mar  6  2016 level0
 ```
 
-When we run _level0_ elf file, we get the following:
+When we run `level0` elf file, we get the following:
 ```
 level0@RainFall:~$ ./level0
 Segmentation fault (core dumped)
 ```
 
-Let's check why it crash:
+Let's check why it crashes:
 ```
 level0@RainFall:~$ gdb ./level0
 (gdb) disassemble main
 Dump of assembler code for function main:
 [...]
-   0x08048ec9 <+9>:	mov    0xc(%ebp),%eax
+   0x08048ec9 <+9>:		mov    0xc(%ebp),%eax
    0x08048ecc <+12>:	add    $0x4,%eax
    0x08048ecf <+15>:	mov    (%eax),%eax
    0x08048ed1 <+17>:	mov    %eax,(%esp)
@@ -41,21 +41,15 @@ Dump of assembler code for function main:
 End of assembler dump.
 ```
 
-We can see that the first argument (argv[1] or 0xc(%ebp)) is used and that it is send to the function atoi. That's why it crash!
+We can see that the first argument (**argv[1]** or 0xc(%ebp)) is used within the atoi function. That's why it crashes!
 
-Alright, so we need to right an argument. If we check to the next instruction, there is a comparison with 423 (0x1a7). This comparison goes to two result:
-- if it is good, we go to an execv
-- if it is false, we jump to an fwrite
-
-Let's check what it do
-
-With a bad value:
+Alright, so we need to provide an argument to avoid the crash. If we check the next instruction, we see a jne instruction with 423 (0x1a7) and our **argv[1]**, which yields two result:
+- if not equal, we jump to a **fwrite**:
 ```
 level0@RainFall:~$ ./level0 42
 No !
 ```
-
-With the good value:
+- if equal, we go to an **execv**:
 ```
 level0@RainFall:~$ ./level0 423
 $ whoami
@@ -64,9 +58,9 @@ $ cat /home/user/level1/.pass
 1fe8a524fa4bec01ca4ea2a869af2a02260d4a7d5fe7e7c24d8617e6dca12d3a
 ```
 
-It work! But why?
+It works! But why?
 
-Let make a break before the execv and check what it run
+Let's place a breakpoint before the **execv** and check what it runs
 ```
 level0@RainFall:~$ gdb level0 
 (gdb) break *(main+145)
@@ -79,4 +73,4 @@ Breakpoint 1, 0x08048f51 in main ()
 0x80c5348:	 "/bin/sh"
 ```
 
-It run **/bin/sh**!
+It runs **/bin/sh**!
