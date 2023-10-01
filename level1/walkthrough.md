@@ -77,6 +77,10 @@ In the disassembled code, we find two main functions: `run` and `main`. The `run
 
 Now, let's focus on the `main` function. It reads input using the `gets` function and then returns. The `gets` function is known to be unsafe, as it can lead to buffer overflow vulnerabilities.
 
+```bash
+Never use gets(). Because it is impossible to tell without knowing the data in advance how many characters gets() will read, and because gets() will continue to store characters past the end of the buffer, it is extremely dangerous to use. It has been used to break computer security. Use fgets() instead.
+```
+
 In this case, the program's stack has a size of 80 bytes, starting at 0x10 (16). Therefore, the buffer is 64 bytes long. Since the `gets` function is followed by the `run` function, we can exploit a stack buffer overflow.
 
 To do this, we need to overwrite the return address (64 + 12) with the address of the `run` function, effectively redirecting program execution to it. This technique is known as a "Stack Buffer Overflow."
