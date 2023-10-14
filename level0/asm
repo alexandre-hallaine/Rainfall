@@ -9,7 +9,7 @@ Dump of assembler code for function main:
 
    # Moving the adress of argv[0] to eax 
    0x08048ec9 <+9>:     mov    0xc(%ebp),%eax'
-   # Go to the adress of argv[1] (argv[0] + 4 bytes = argv[1])
+   # Go to the adress of argv[1] (address of argv[0] + 4 bytes = address of argv[1])
    0x08048ecc <+12>:    add    $0x4,%eax
    # Dereference the address to get the value
    0x08048ecf <+15>:    mov    (%eax),%eax
