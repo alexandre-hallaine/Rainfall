@@ -57,7 +57,6 @@ Dump of assembler code for function main:
    # To recap: setresuid(0x18(%esp), 0x18(%esp), 0x18(%esp))
    0x08048f3d <+125>:   call   0x8054690 <setresuid>
 
-
    # Calculate the address of the array of strings we created earlier (since we need to pass an address for execve)
    0x08048f42 <+130>:   lea    0x10(%esp),%eax
    # Moving the address of the first index of the array of strings into esp to be used as the second argument
@@ -68,7 +67,6 @@ Dump of assembler code for function main:
    0x08048f51 <+145>:   call   0x8054640 <execv>
    # Jump to +192 where we'll return 0
    0x08048f56 <+150>:   jmp    0x8048f80 <main+192>
-
 
    # Moving stderr into eax then edx
    0x08048f58 <+152>:   mov    0x80ee170,%eax
