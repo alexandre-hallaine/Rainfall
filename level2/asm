@@ -12,29 +12,51 @@ Dump of assembler code for function p:
    # To recap: fflush(stdout)
    0x080484e2 <+14>:    call   0x80483b0 <fflush@plt>
 
+   # calculate address of buff1
    0x080484e7 <+19>:    lea    -0x4c(%ebp),%eax
+   # put the buff1 in esp to be used as arg of gets
    0x080484ea <+22>:    mov    %eax,(%esp)
+   # gets(buff1)
    0x080484ed <+25>:    call   0x80483c0 <gets@plt>
+   # create another buffer (buff2) that takes 4 extra bytes (undefined behavior because above ebp), essentially checking the return address
    0x080484f2 <+30>:    mov    0x4(%ebp),%eax
+   # buff2 = 4 extra bytes + buff1
    0x080484f5 <+33>:    mov    %eax,-0xc(%ebp)
+   # Put into eax to be used for and
    0x080484f8 <+36>:    mov    -0xc(%ebp),%eax
+   # buff2 & 0xb0000000
    0x080484fb <+39>:    and    $0xb0000000,%eax
+   # compare buff2 & 0xb0000000 with 0xb0000000
    0x08048500 <+44>:    cmp    $0xb0000000,%eax
+   # if not equal jump to +83
    0x08048505 <+49>:    jne    0x8048527 <p+83>
 
+   # "(%p)\n"
    0x08048507 <+51>:    mov    $0x8048620,%eax
+   # buff1 into edx
    0x0804850c <+56>:    mov    -0xc(%ebp),%edx
+   # adding the extra 4 bytes (return address), therefore we're using buff2
    0x0804850f <+59>:    mov    %edx,0x4(%esp)
+   # put it as argument
    0x08048513 <+63>:    mov    %eax,(%esp)
+   # printf("(%p)\n", buffer)
    0x08048516 <+66>:    call   0x80483a0 <printf@plt>
+   # put 1 as arg of exit
    0x0804851b <+71>:    movl   $0x1,(%esp)
+   # exit(1)
    0x08048522 <+78>:    call   0x80483d0 <_exit@plt>
 
+   # calculate address of buff1
    0x08048527 <+83>:    lea    -0x4c(%ebp),%eax
+   # mov buff2 into esp to be used as an argument of puts
    0x0804852a <+86>:    mov    %eax,(%esp)
+   # puts(buff2)
    0x0804852d <+89>:    call   0x80483f0 <puts@plt>
+   # calculate address of buff1
    0x08048532 <+94>:    lea    -0x4c(%ebp),%eax
+   # mov buff2 into esp to be used as an argument of strdup
    0x08048535 <+97>:    mov    %eax,(%esp)
+   # strdup(buff1)
    0x08048538 <+100>:   call   0x80483e0 <strdup@plt>
 
    # Leaving the function
