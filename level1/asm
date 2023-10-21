@@ -11,13 +11,13 @@ Dump of assembler code for function run:
    0x0804844f <+11>:    mov    %eax,%edx
    # Moving "Good... Wait what?\n" (the string at the 0x8048570 address) into eax
    0x08048451 <+13>:    mov    $0x8048570,%eax
-   # Moving stdout into esp to be used as fourth argument
+   # Moving stdout into esp to be used as the fourth argument of fwrite
    0x08048456 <+18>:    mov    %edx,0xc(%esp)
-   # Moving 19 into esp to be used as third argument
+   # Moving 19 into esp to be used as the third argument of fwrite
    0x0804845a <+22>:    movl   $0x13,0x8(%esp)
-   # Moving 1 into esp to be used as second argument
+   # Moving 1 into esp to be used as the second argument of fwrite
    0x08048462 <+30>:    movl   $0x1,0x4(%esp)
-   # Moving "Good... Wait what?\n" into esp to be used as first argument
+   # Moving "Good... Wait what?\n" into esp to be used as the first argument of fwrite
    0x0804846a <+38>:    mov    %eax,(%esp)
    # To recap: fwrite("Good... Wait what?\n", 1, 19, stdout)
    0x0804846d <+41>:    call   0x8048350 <fwrite@plt>
@@ -40,10 +40,11 @@ Dump of assembler code for function main:
    # Allocating 80 bytes on the stack
    0x08048486 <+6>:     sub    $0x50,%esp
 
-   # Calculate the address of esp + 16, this will be our buffer for gets, since we allocated 80 bytes for the stack our buffer will therefore be 64 bytes such as char buf[64]
+   # Calculate the address of esp + 16, this will be our buffer for gets, since we allocated 80 bytes for the stack our buffer will therefore be 64 bytes such as char buffer[64], and putting it into eax
    0x08048489 <+9>:     lea    0x10(%esp),%eax
-   # Moving the address of buf[0] in esp to be used as the argument for gets
+   # Moving the address of buffer in esp to be used as the argument for gets
    0x0804848d <+13>:    mov    %eax,(%esp)
+   # To recap: gets(buffer)
    0x08048490 <+16>:    call   0x8048340 <gets@plt>
 
    # Leaving the function

@@ -7,7 +7,7 @@ Dump of assembler code for function main:
    # Allocating 32 bytes on the stack
    0x08048ec6 <+6>:     sub    $0x20,%esp
 
-   # Moving the adress of argv[0] to eax 
+   # Moving the adress of argv to eax 
    0x08048ec9 <+9>:     mov    0xc(%ebp),%eax'
    # Go to the adress of argv[1] (address of argv[0] + 4 bytes = address of argv[1])
    0x08048ecc <+12>:    add    $0x4,%eax
@@ -19,22 +19,24 @@ Dump of assembler code for function main:
    0x08048ed4 <+20>:    call   0x8049710 <atoi>
    # Compare atoi result with 423
    0x08048ed9 <+25>:    cmp    $0x1a7,%eax
-   # if not equal jump to +152 where we'll write "No !\n"
+   # if not equal jump to main+152
    0x08048ede <+30>:    jne    0x8048f58 <main+152>
 
    # Moving "/bin/sh" (the string at the 0x80c5348 address) into esp to be used as the argument of strdup
    0x08048ee0 <+32>:    movl   $0x80c5348,(%esp)
    # To recap: strdup("/bin/sh")
    0x08048ee7 <+39>:    call   0x8050bf0 <strdup>
-   # Moving result of strdup("/bin/sh") into index 0 of a array of strings
+   # Moving result of strdup("/bin/sh") into index 0 of a array of strings such as cmd_args[0] = "/bin/sh" (our array of strings is declared such as char *cmd_args[2])
    # Why do we have an array of strings ? By convention with execve, we need to pass the pathname as a string in the argument list, as the first argument, and null terminate that argument list (man execve)
    0x08048eec <+44>:    mov    %eax,0x10(%esp)
-   # Moving 0 into index 1 of a array of strings 
+   # Moving 0 into index 1 of cmd_args such as cmd_args[1] = 0
    0x08048ef0 <+48>:    movl   $0x0,0x14(%esp)
 
+   # To recap: getegid()
    0x08048ef8 <+56>:    call   0x8054680 <getegid>
    # Moving result of getegid into a variable (gid_t)
    0x08048efd <+61>:    mov    %eax,0x1c(%esp)
+   # To recap: geteuid()
    0x08048f01 <+65>:    call   0x8054670 <geteuid>
    # Moving result of geteuid into a variable (uid_t)
    0x08048f06 <+70>:    mov    %eax,0x18(%esp)
@@ -45,9 +47,9 @@ Dump of assembler code for function main:
    0x08048f16 <+86>:    mov    %eax,0x4(%esp)
    0x08048f1a <+90>:    mov    0x1c(%esp),%eax
    0x08048f1e <+94>:    mov    %eax,(%esp)
-   # To recap: setresgid(0x1c(%esp), 0x1c(%esp, 0x1c(%esp)
+   # To recap: setresgid(0x1c(%esp), 0x1c(%esp), 0x1c(%esp))
    0x08048f21 <+97>:    call   0x8054700 <setresgid>
-   # Same thing as the comment above but with the return of geteuid instead
+   # Here we're moving the variable that has the return of geteuid into esp three times so that they are used as arguments for the setresuid function
    0x08048f26 <+102>:   mov    0x18(%esp),%eax
    0x08048f2a <+106>:   mov    %eax,0x8(%esp)
    0x08048f2e <+110>:   mov    0x18(%esp),%eax
@@ -57,11 +59,11 @@ Dump of assembler code for function main:
    # To recap: setresuid(0x18(%esp), 0x18(%esp), 0x18(%esp))
    0x08048f3d <+125>:   call   0x8054690 <setresuid>
 
-   # Calculate the address of the array of strings we created earlier (since we need to pass an address for execve)
+   # Calculate the address of the array of strings we created earlier (since we need to pass an address for execve) and moving it into eax
    0x08048f42 <+130>:   lea    0x10(%esp),%eax
-   # Moving the address of the first index of the array of strings into esp to be used as the second argument
+   # Moving the address of the array of strings into esp to be used as the second argument of execv
    0x08048f46 <+134>:   mov    %eax,0x4(%esp)
-   # Moving "/bin/sh" (the string at the 0x80c5348 address) into esp to be used as the first argument
+   # Moving "/bin/sh" (the string at the 0x80c5348 address) into esp to be used as the first argument of execv
    0x08048f4a <+138>:   movl   $0x80c5348,(%esp)
    # To recap: execv("/bin/sh", {"/bin/sh", "0"})
    0x08048f51 <+145>:   call   0x8054640 <execv>
@@ -73,13 +75,13 @@ Dump of assembler code for function main:
    0x08048f5d <+157>:   mov    %eax,%edx
    # Moving "No !\n" (the string at the 0x80ee170 address) into eax
    0x08048f5f <+159>:   mov    $0x80c5350,%eax
-   # Moving stderr into esp to be used as fourth argument
+   # Moving stderr into esp to be used as fourth argument of fwrite 
    0x08048f64 <+164>:   mov    %edx,0xc(%esp)
-   # Moving 5 into esp to be used as third argument
+   # Moving 5 into esp to be used as third argument of fwrite 
    0x08048f68 <+168>:   movl   $0x5,0x8(%esp)
-   # Moving 1 into esp to be used as second argument
+   # Moving 1 into esp to be used as second argument of fwrite 
    0x08048f70 <+176>:   movl   $0x1,0x4(%esp)
-   # Moving "No !\n" to be used as first argument
+   # Moving "No !\n" to be used as first argument of fwrite 
    0x08048f78 <+184>:   mov    %eax,(%esp)
    # To recap: fwrite("No !\n", 1, 5, stderr)
    0x08048f7b <+187>:   call   0x804a230 <fwrite>

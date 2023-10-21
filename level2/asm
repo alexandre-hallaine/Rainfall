@@ -12,51 +12,52 @@ Dump of assembler code for function p:
    # To recap: fflush(stdout)
    0x080484e2 <+14>:    call   0x80483b0 <fflush@plt>
 
-   # calculate address of buff1
+   # Calculate the address of ebp - 76, this will be our buffer for gets, since we allocated 104 bytes for the stack and that our next variables start at ebp - 12 (see line +33 of p) our buffer will therefore be 64 bytes such as int buffer[16] (int are 4 bytes wide)
    0x080484e7 <+19>:    lea    -0x4c(%ebp),%eax
-   # put the buff1 in esp to be used as arg of gets
+   # Moving the address of buffer in esp to be used as the argument for gets
    0x080484ea <+22>:    mov    %eax,(%esp)
-   # gets(buff1)
+   # To recap: gets(buffer)
    0x080484ed <+25>:    call   0x80483c0 <gets@plt>
-   # create another buffer (buff2) that takes 4 extra bytes (undefined behavior because above ebp), essentially checking the return address
+   # Move 4 bytes above ebp aka the return address into eax (this would be considered undefined behavior in regular coding standards)
    0x080484f2 <+30>:    mov    0x4(%ebp),%eax
-   # buff2 = 4 extra bytes + buff1
+   # Moving the return address into our next variable tmp
    0x080484f5 <+33>:    mov    %eax,-0xc(%ebp)
-   # Put into eax to be used for and
+   # Moving tmp into eax to be used with the AND bitwise operation
    0x080484f8 <+36>:    mov    -0xc(%ebp),%eax
-   # buff2 & 0xb0000000
+   # Perform bitwise AND between tmp and 0xb0000000
    0x080484fb <+39>:    and    $0xb0000000,%eax
-   # compare buff2 & 0xb0000000 with 0xb0000000
+   # Compare the result of tmp & 0xb0000000 with 0xb0000000
+   # To recap: if (tmp & 0xb0000000) == 0xb0000000
    0x08048500 <+44>:    cmp    $0xb0000000,%eax
-   # if not equal jump to +83
+   # if not equal jump to p+83
    0x08048505 <+49>:    jne    0x8048527 <p+83>
 
-   # "(%p)\n"
+   # Moving "(%p)\n" (the string at the 0x8048620 address) into eax
    0x08048507 <+51>:    mov    $0x8048620,%eax
-   # buff1 into edx
+   # Moving tmp into edx
    0x0804850c <+56>:    mov    -0xc(%ebp),%edx
-   # adding the extra 4 bytes (return address), therefore we're using buff2
+   # Moving tmp into esp to be used as the second argument of printf
    0x0804850f <+59>:    mov    %edx,0x4(%esp)
-   # put it as argument
+   # Moving "(%p)\n" into esp to be used as the first argument of printf
    0x08048513 <+63>:    mov    %eax,(%esp)
-   # printf("(%p)\n", buffer)
+   # To recap: printf("(%p)\n", tmp)
    0x08048516 <+66>:    call   0x80483a0 <printf@plt>
-   # put 1 as arg of exit
+   # Moving 1 into esp to be used as the argument of exit
    0x0804851b <+71>:    movl   $0x1,(%esp)
-   # exit(1)
+   # To recap: exit(1)
    0x08048522 <+78>:    call   0x80483d0 <_exit@plt>
 
-   # calculate address of buff1
+   # Calculate the address of buffer and putting it in eax
    0x08048527 <+83>:    lea    -0x4c(%ebp),%eax
-   # mov buff2 into esp to be used as an argument of puts
+   # Moving the address of buffer into esp to be used as the argument of puts
    0x0804852a <+86>:    mov    %eax,(%esp)
-   # puts(buff2)
+   # To recap: puts(buffer)
    0x0804852d <+89>:    call   0x80483f0 <puts@plt>
-   # calculate address of buff1
+   # Calculate the address of buffer and putting it in eax
    0x08048532 <+94>:    lea    -0x4c(%ebp),%eax
-   # mov buff2 into esp to be used as an argument of strdup
+   # Moving the address of buffer into esp to be used as the argument of strdup
    0x08048535 <+97>:    mov    %eax,(%esp)
-   # strdup(buff1)
+   # To recap: strdup(buffer)
    0x08048538 <+100>:   call   0x80483e0 <strdup@plt>
 
    # Leaving the function
@@ -69,6 +70,7 @@ Dump of assembler code for function main:
    0x08048540 <+1>:     mov    %esp,%ebp
    0x08048542 <+3>:     and    $0xfffffff0,%esp
 
+   # To recap: p()
    0x08048545 <+6>:     call   0x80484d4 <p>
 
    # Leaving the function

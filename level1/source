@@ -9,6 +9,6 @@ void run(void)
 
 int main(void)
 {
-    char buf[64];
-    gets(buf);
+    char buffer[64];
+    gets(buffer);
 }
