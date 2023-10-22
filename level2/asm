@@ -14,13 +14,13 @@ Dump of assembler code for function p:
 
    # Calculate the address of ebp - 76, this will be our buffer for gets, since we allocated 104 bytes for the stack and that our next variables start at ebp - 12 (see line +33 of p) our buffer will therefore be 64 bytes such as int buffer[16] (int are 4 bytes wide)
    0x080484e7 <+19>:    lea    -0x4c(%ebp),%eax
-   # Moving the address of buffer in esp to be used as the argument for gets
+   # Moving the address of buffer into esp to be used as the argument for gets
    0x080484ea <+22>:    mov    %eax,(%esp)
    # To recap: gets(buffer)
    0x080484ed <+25>:    call   0x80483c0 <gets@plt>
    # Move 4 bytes above ebp aka the return address into eax (this would be considered undefined behavior in regular coding standards)
    0x080484f2 <+30>:    mov    0x4(%ebp),%eax
-   # Moving the return address into our next variable tmp
+   # Moving the return address into our next variable tmp such as int tmp (only 12 bytes here, however we need 16 bytes for an int, do we go up to ebp + 4 ?)
    0x080484f5 <+33>:    mov    %eax,-0xc(%ebp)
    # Moving tmp into eax to be used with the AND bitwise operation
    0x080484f8 <+36>:    mov    -0xc(%ebp),%eax

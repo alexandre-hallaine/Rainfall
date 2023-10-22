@@ -88,5 +88,6 @@ Dump of assembler code for function main:
 
    # Moving 0 in eax to do a return 0
    0x08048f80 <+192>:   mov    $0x0,%eax
+   # Leaving the function
    0x08048f85 <+197>:   leave  
    0x08048f86 <+198>:   ret

@@ -1,0 +1,69 @@
+Dump of assembler code for function v:
+   # Usual setup
+   0x080484a4 <+0>:     push   %ebp
+   0x080484a5 <+1>:     mov    %esp,%ebp
+
+   # Allocating 536 bytes on the stack
+   0x080484a7 <+3>:     sub    $0x218,%esp
+
+   # Moving stdin into eax
+   0x080484ad <+9>:     mov    0x8049860,%eax
+   # Moving stdin into esp to be used as the third argument of fgets
+   0x080484b2 <+14>:    mov    %eax,0x8(%esp)
+   # Moving 512 into esp to be used as the second argument of fgets
+   0x080484b6 <+18>:    movl   $0x200,0x4(%esp)
+   # Calculate the address of ebp - 520, this will be our buffer for fgets, since we allocated 536 bytes for the stack our buffer will therefore be 512 bytes such as char buffer[512], and putting it into eax
+   0x080484be <+26>:    lea    -0x208(%ebp),%eax
+   # Moving the address of buffer into esp to be used as the first argument of fgets
+   0x080484c4 <+32>:    mov    %eax,(%esp)
+   # To recap: fgets(buffer, 512, stdin)
+   0x080484c7 <+35>:    call   0x80483a0 <fgets@plt>
+   # Calculate the address of buffer and putting it into eax
+   0x080484cc <+40>:    lea    -0x208(%ebp),%eax
+   # Moving the address of buffer into esp to be used as the argument of printf
+   0x080484d2 <+46>:    mov    %eax,(%esp)
+   # To recap: printf(buffer);
+   0x080484d5 <+49>:    call   0x8048390 <printf@plt>
+   # Moving a global variable m that has not been initialized (0x804988c <m>:  0) into eax
+   0x080484da <+54>:    mov    0x804988c,%eax
+   # Compare the m variable with 54
+   0x080484df <+59>:    cmp    $0x40,%eax
+   # if not equal jump to v+116
+   0x080484e2 <+62>:    jne    0x8048518 <v+116>
+
+   # Moving stdout into eax then edx
+   0x080484e4 <+64>:    mov    0x8049880,%eax
+   0x080484e9 <+69>:    mov    %eax,%edx
+   # Moving "Wait what?!\n" (the string at the 0x8048600 address) into eax
+   0x080484eb <+71>:    mov    $0x8048600,%eax
+   # Moving stdout into esp to be used as the fourth argument of fwrite
+   0x080484f0 <+76>:    mov    %edx,0xc(%esp)
+   # Moving 12 into esp to be used as the third argument of fwrite
+   0x080484f4 <+80>:    movl   $0xc,0x8(%esp)
+   # Moving 1 into esp to be used as the second argument of fwrite
+   0x080484fc <+88>:    movl   $0x1,0x4(%esp)
+   # Moving "Wait what?!\n" into esp to be used as the third argument of fwrite
+   0x08048504 <+96>:    mov    %eax,(%esp)
+   # To recap: fwrite("Wait what?!\n", 1, 12, stdout)
+   0x08048507 <+99>:    call   0x80483b0 <fwrite@plt>
+   # Moving "/bin/sh" into esp to be used as the argument of system
+   0x0804850c <+104>:   movl   $0x804860d,(%esp)
+   # To recap: system("/bin/sh")
+   0x08048513 <+111>:   call   0x80483c0 <system@plt>
+
+   # Leaving the function
+   0x08048518 <+116>:   leave  
+   0x08048519 <+117>:   ret
+
+Dump of assembler code for function main:
+   # Usual setup
+   0x0804851a <+0>:     push   %ebp
+   0x0804851b <+1>:     mov    %esp,%ebp
+   0x0804851d <+3>:     and    $0xfffffff0,%esp
+
+   # To recap: v()
+   0x08048520 <+6>:     call   0x80484a4 <v>
+
+   # Leaving the function
+   0x08048525 <+11>:    leave  
+   0x08048526 <+12>:    ret      
