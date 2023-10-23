@@ -46,7 +46,7 @@ Dump of assembler code for function v:
    0x08048504 <+96>:    mov    %eax,(%esp)
    # To recap: fwrite("Wait what?!\n", 1, 12, stdout)
    0x08048507 <+99>:    call   0x80483b0 <fwrite@plt>
-   # Moving "/bin/sh" into esp to be used as the argument of system
+   # Moving "/bin/sh" (the string at the 0x804860d address) into esp to be used as the argument of system
    0x0804850c <+104>:   movl   $0x804860d,(%esp)
    # To recap: system("/bin/sh")
    0x08048513 <+111>:   call   0x80483c0 <system@plt>
