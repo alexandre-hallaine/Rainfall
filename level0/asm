@@ -7,13 +7,13 @@ Dump of assembler code for function main:
    # Allocating 32 bytes on the stack
    0x08048ec6 <+6>:     sub    $0x20,%esp
 
-   # Moving *argv[0] to eax 
+   # Moving *argv[0] into eax 
    0x08048ec9 <+9>:     mov    0xc(%ebp),%eax
    # Go to *argv[1] (*argv[0] + 4 bytes = *argv[1])
    0x08048ecc <+12>:    add    $0x4,%eax
    # Dereference the address to get the value (*argv[1] => argv[1])
    0x08048ecf <+15>:    mov    (%eax),%eax
-   # Move the value in esp to be passed as the argument of atoi
+   # Moving argv[1] into esp to be used as the argument of atoi
    0x08048ed1 <+17>:    mov    %eax,(%esp)
    # To recap: atoi(argv[1])
    0x08048ed4 <+20>:    call   0x8049710 <atoi>
@@ -86,7 +86,7 @@ Dump of assembler code for function main:
    # To recap: fwrite("No !\n", 1, 5, stderr)
    0x08048f7b <+187>:   call   0x804a230 <fwrite>
 
-   # Moving 0 in eax to do a return 0
+   # Moving 0 into eax to do a return 0
    0x08048f80 <+192>:   mov    $0x0,%eax
    # Leaving the function
    0x08048f85 <+197>:   leave  

@@ -42,7 +42,7 @@ Dump of assembler code for function main:
 
    # Calculate the address of esp + 16, this will be our buffer for gets, since we allocated 80 bytes for the stack our buffer will therefore be 64 bytes such as char buffer[64], and putting it into eax
    0x08048489 <+9>:     lea    0x10(%esp),%eax
-   # Moving the address of buffer in esp to be used as the argument for gets
+   # Moving the address of buffer into esp to be used as the argument for gets
    0x0804848d <+13>:    mov    %eax,(%esp)
    # To recap: gets(buffer)
    0x08048490 <+16>:    call   0x8048340 <gets@plt>

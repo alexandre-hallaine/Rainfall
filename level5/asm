@@ -30,7 +30,7 @@ Dump of assembler code for function n:
    0x080484d0 <+14>:    mov    %eax,0x8(%esp)
    # Moving 512 into esp to be used as the second argument of fgets
    0x080484d4 <+18>:    movl   $0x200,0x4(%esp)
-    Calculate the address of ebp - 520, this will be our buffer for fgets, since we allocated 536 bytes for the stack our buffer will therefore be 512 bytes such as char buffer[512], and putting it into eax
+   # Calculate the address of ebp - 520, this will be our buffer for fgets, since we allocated 536 bytes for the stack our buffer will therefore be 512 bytes such as char buffer[512], and putting it into eax
    0x080484dc <+26>:    lea    -0x208(%ebp),%eax
    # Moving the address of buffer into esp to be used as the first argument of fgets
    0x080484e2 <+32>:    mov    %eax,(%esp)

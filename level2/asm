@@ -47,13 +47,13 @@ Dump of assembler code for function p:
    # To recap: exit(1)
    0x08048522 <+78>:    call   0x80483d0 <_exit@plt>
 
-   # Calculate the address of buffer and putting it in eax
+   # Calculate the address of buffer and putting it into eax
    0x08048527 <+83>:    lea    -0x4c(%ebp),%eax
    # Moving the address of buffer into esp to be used as the argument of puts
    0x0804852a <+86>:    mov    %eax,(%esp)
    # To recap: puts(buffer)
    0x0804852d <+89>:    call   0x80483f0 <puts@plt>
-   # Calculate the address of buffer and putting it in eax
+   # Calculate the address of buffer and putting it into eax
    0x08048532 <+94>:    lea    -0x4c(%ebp),%eax
    # Moving the address of buffer into esp to be used as the argument of strdup
    0x08048535 <+97>:    mov    %eax,(%esp)
