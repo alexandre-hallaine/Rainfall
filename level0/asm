@@ -7,11 +7,11 @@ Dump of assembler code for function main:
    # Allocating 32 bytes on the stack
    0x08048ec6 <+6>:     sub    $0x20,%esp
 
-   # Moving the adress of argv to eax 
-   0x08048ec9 <+9>:     mov    0xc(%ebp),%eax'
-   # Go to the adress of argv[1] (address of argv[0] + 4 bytes = address of argv[1])
+   # Moving *argv[0] to eax 
+   0x08048ec9 <+9>:     mov    0xc(%ebp),%eax
+   # Go to *argv[1] (*argv[0] + 4 bytes = *argv[1])
    0x08048ecc <+12>:    add    $0x4,%eax
-   # Dereference the address to get the value
+   # Dereference the address to get the value (*argv[1] => argv[1])
    0x08048ecf <+15>:    mov    (%eax),%eax
    # Move the value in esp to be passed as the argument of atoi
    0x08048ed1 <+17>:    mov    %eax,(%esp)
