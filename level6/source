@@ -14,13 +14,13 @@ void m()
 
 int main(int ac, char **argv)
 {
-    char *buffer;
+    int *buffer;
     void (**func)(void);
 
     buffer = (char *)malloc(64);
     func = (void (**)(void))malloc(4);
 
     *func = m;
-    strcpy(buffer, argv[1]); // not perfect, there's an extra move with edx and I don't understand how
+    strcpy(buffer, argv[1]);
     (*func)();
 }

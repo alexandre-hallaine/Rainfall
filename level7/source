@@ -1,0 +1,29 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
+
+char c[80] = "";
+
+void m()
+{
+    printf("%s - %d\n", c, time(0));
+}
+
+int main()
+{
+    int *buffer;
+    int *buffer2;
+
+    buffer = (int)malloc(8);
+    *buffer = 1;
+
+    buffer[1] = (int)malloc(8); // how to malloc before buffer[1] = and without using a variable?
+
+    buffer2 = (int *)malloc(8);
+    *buffer2 = 2;
+}
+
+
+
+
+}
