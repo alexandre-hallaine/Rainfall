@@ -31,8 +31,9 @@ Dump of assembler code for function v:
    # if not equal jump to v+116
    0x080484e2 <+62>:    jne    0x8048518 <v+116>
 
-   # Moving stdout into eax then edx
+   # Moving stdout into eax
    0x080484e4 <+64>:    mov    0x8049880,%eax
+   # Moving stdout into edx
    0x080484e9 <+69>:    mov    %eax,%edx
    # Moving "Wait what?!\n" (the string at the 0x8048600 address) into eax
    0x080484eb <+71>:    mov    $0x8048600,%eax

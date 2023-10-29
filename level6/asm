@@ -47,7 +47,6 @@ Dump of assembler code for function main:
    0x0804848c <+16>:    call   0x8048350 <malloc@plt>
    # Moving the return of malloc(64) into esp + 28, since we allocated 32 bytes for the stack our buffer will therefore be 4 bytes such as char *buffer
    0x08048491 <+21>:    mov    %eax,0x1c(%esp)
-
    # Moving 4 into esp to be used as the argument of malloc
    0x08048495 <+25>:    movl   $0x4,(%esp)
    # To recap: malloc(4)
@@ -69,7 +68,6 @@ Dump of assembler code for function main:
    # Moving argv[1] into edx
    0x080484b8 <+60>:    mov    %eax,%edx
    # Moving buffer into eax
-
    0x080484ba <+62>:    mov    0x1c(%esp),%eax
    # Moving argv[1] into esp to be used as the second argument of strcpy
    0x080484be <+66>:    mov    %edx,0x4(%esp)
