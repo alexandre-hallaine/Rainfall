@@ -29,7 +29,7 @@ Dump of assembler code for function p:
    # Compare the result of tmp & 0xb0000000 with 0xb0000000
    # To recap: if (tmp & 0xb0000000) == 0xb0000000
    0x08048500 <+44>:    cmp    $0xb0000000,%eax
-   # if not equal jump to p+83
+   # If not equal jump to p+83
    0x08048505 <+49>:    jne    0x8048527 <p+83>
 
    # Moving "(%p)\n" (the string at the 0x8048620 address) into eax

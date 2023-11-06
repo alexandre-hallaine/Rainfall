@@ -47,7 +47,7 @@ Dump of assembler code for function n:
    0x0804848d <+54>:    mov    0x8049810,%eax
    # Compare the m variable with 16930116
    0x08048492 <+59>:    cmp    $0x1025544,%eax
-   # if not equal jump to n+78
+   # If not equal jump to n+78
    0x08048497 <+64>:    jne    0x80484a5 <n+78>
 
    # Moving "/bin/cat /home/user/level5/.pass" (the string at the 0x8048590 address) into esp to be used as the argument of system

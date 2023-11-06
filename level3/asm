@@ -28,7 +28,7 @@ Dump of assembler code for function v:
    0x080484da <+54>:    mov    0x804988c,%eax
    # Compare the m variable with 54
    0x080484df <+59>:    cmp    $0x40,%eax
-   # if not equal jump to v+116
+   # If not equal jump to v+116
    0x080484e2 <+62>:    jne    0x8048518 <v+116>
 
    # Moving stdout into eax

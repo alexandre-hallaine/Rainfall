@@ -19,7 +19,7 @@ Dump of assembler code for function main:
    0x08048ed4 <+20>:    call   0x8049710 <atoi>
    # Compare atoi result with 423
    0x08048ed9 <+25>:    cmp    $0x1a7,%eax
-   # if not equal jump to main+152
+   # If not equal jump to main+152
    0x08048ede <+30>:    jne    0x8048f58 <main+152>
 
    # Moving "/bin/sh" (the string at the 0x80c5348 address) into esp to be used as the argument of strdup
