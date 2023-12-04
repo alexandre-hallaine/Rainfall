@@ -5,7 +5,6 @@ Dump of assembler code for function main:
    0x08048568 <+4>:     push   %esi
    0x08048569 <+5>:     and    $0xfffffff0,%esp
 
-
    0x0804856c <+8>:     sub    $0xa0,%esp // 160
 
    0x08048572 <+14>:    jmp    0x8048575 <main+17>
