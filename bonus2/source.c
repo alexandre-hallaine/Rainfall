@@ -26,6 +26,7 @@ void greetuser(char *str)
     puts(buf);
 }
 
+// one line difference main+31 (extra use of eax)
 int main(int argc, char **argv)
 {
     char buf[76];
