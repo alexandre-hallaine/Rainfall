@@ -26,7 +26,7 @@ int main()
         }
 
         if (!(strncmp(buf, "reset", 5)))
-        free(auth);
+            free(auth);
 
         if (!(strncmp(buf, "service", 6)))
             service = strdup(buf + 7);
