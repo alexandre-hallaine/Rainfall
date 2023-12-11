@@ -1,56 +1,57 @@
 # Level0
 
-## Hint
+## Foreword
+In the following walkthroughs, we frequently reference the source code we wrote. This is due to our initial step of translating the assembly code into C code.
 
-Use **gdb** and check the main function to find the exploit !
+Our aim was to align our C code closely with the original source code, a goal we largely achieved. Nonetheless, there are some deviations, which we will highlight as needed. We will also refer to the assembly code only when necessary.
 
 ## Answer
-
-Let's see what we have here:
+Our C source code generates the same assembly code as the original binary. Compile it as follows:
 ```
-level0@RainFall:~$ ls -l
-total 732
--rwsr-x---+ 1 level1 users 747441 Mar  6  2016 level0
+gcc -fno-stack-protector -static source.c
 ```
 
-When we run `level0` elf file, we get the following:
-```
-level0@RainFall:~$ ./level0
-Segmentation fault (core dumped)
+Let's take a look at the source code:
+```c
+#define _GNU_SOURCE
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
+int main(int argc, char *argv[])
+{
+	if (atoi(argv[1]) == 423)
+	{
+		char *cmd_args[2];
+		cmd_args[0] = strdup("/bin/sh");
+		cmd_args[1] = 0;
+
+		gid_t group = getegid();
+		uid_t user = geteuid();
+		setresgid(group, group, group);
+		setresuid(user, user, user);
+
+		execv("/bin/sh", cmd_args);
+	}
+	else
+	{
+		fwrite("No !\n", 1, 5, stderr);
+	}
+
+	return 0;
+}
 ```
 
-Let's check why it crashes:
-```
-level0@RainFall:~$ gdb ./level0
-(gdb) disassemble main
-Dump of assembler code for function main:
-[...]
-   0x08048ec9 <+9>:		mov    0xc(%ebp),%eax
-   0x08048ecc <+12>:	add    $0x4,%eax
-   0x08048ecf <+15>:	mov    (%eax),%eax
-   0x08048ed1 <+17>:	mov    %eax,(%esp)
-   0x08048ed4 <+20>:	call   0x8049710 <atoi>
-   0x08048ed9 <+25>:	cmp    $0x1a7,%eax
-   0x08048ede <+30>:	jne    0x8048f58 <main+152>
-[...]
-   0x08048f4a <+138>:	movl   $0x80c5348,(%esp)
-   0x08048f51 <+145>:	call   0x8054640 <execv>
-[...]
-   0x08048f7b <+187>:	call   0x804a230 <fwrite>
-[...]
-End of assembler dump.
-```
+The program takes a single argument, converts it to an integer, and compares it to 423.
 
-We can see that the first argument (**argv[1]** or 0xc(%ebp)) is used within the atoi function. That's why it crashes!
+If the comparison is true, the program executes `/bin/sh` with the same privileges as the owner's group and user.
+> *Because the setuid bit is set on the binary, the program will run with the privileges of the owner, which is level1.*
 
-Alright, so we need to provide an argument to avoid the crash. If we check the next instruction, we see a jne instruction with 423 (0x1a7) and our **argv[1]**, which yields two result:
-- if not equal, we jump to a **fwrite**:
-```
-level0@RainFall:~$ ./level0 42
-No !
-```
-- if equal, we go to an **execv**:
-```
+Otherwise, it prints `No !\n` to stderr.
+
+So we need to pass 423 as an argument to the program. Let's try it:
+```bash
 level0@RainFall:~$ ./level0 423
 $ whoami
 level1
@@ -58,19 +59,4 @@ $ cat /home/user/level1/.pass
 1fe8a524fa4bec01ca4ea2a869af2a02260d4a7d5fe7e7c24d8617e6dca12d3a
 ```
 
-It works! But why?
-
-Let's place a breakpoint before the **execv** and check what it runs
-```
-level0@RainFall:~$ gdb level0 
-(gdb) break *(main+145)
-Breakpoint 1 at 0x8048f51
-(gdb) run 423
-Starting program: /home/user/level0/level0 423
-
-Breakpoint 1, 0x08048f51 in main ()
-(gdb) x/s 0x80c5348
-0x80c5348:	 "/bin/sh"
-```
-
-It runs **/bin/sh**!
+We are now level1! Let's move on to the next level.

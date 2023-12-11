@@ -20,9 +20,7 @@ int main(int argc, char *argv[])
 		execv("/bin/sh", cmd_args);
 	}
 	else
-	{
 		fwrite("No !\n", 1, 5, stderr);
-	}
 
 	return 0;
 }
