@@ -22,7 +22,7 @@ int main(int argc, char **argv)
 
     buffer2 = (int *)malloc(8);
     *buffer2 = 2;
-    buffer2[2] = (int)malloc(8);
+    buffer2[1] = (int)malloc(8);
     buffer2 = argv[1];
 
     strcpy(buffer[1], argv[1]);
