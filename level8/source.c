@@ -2,14 +2,20 @@
 #include <stdlib.h>
 #include <string.h>
 
+struct s_user {
+    int id;
+    char login[28];
+    int is_auth;
+};
+
 int *service;
-int *auth;
+struct s_user *user;
 
 int main()
 {
     while (1)
     {
-        printf("%p, %p \n", auth, service);
+        printf("%p, %p \n", user, service);
 
         char buf[128];
 
@@ -18,22 +24,22 @@ int main()
 
         if (!(strncmp(buf, "auth ", 5)))
         {
-            auth = malloc(4);
-            *auth = 0;
+            user = malloc(4);
+            user->id = 0;
 
             if (strlen(buf + 5) <= 30)
-                strcpy(auth, buf + 5);
+                strcpy(user, buf + 5);
         }
 
         if (!(strncmp(buf, "reset", 5)))
-            free(auth);
+            free(user);
 
         if (!(strncmp(buf, "service", 6)))
             service = strdup(buf + 7);
 
         if (!(strncmp(buf, "login", 5)))
         {
-            if (auth + 32)
+            if (user->is_auth)
                 system("/bin/sh");
             else
                 fwrite("Password:\n", 1, 10, stdout);

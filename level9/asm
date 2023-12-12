@@ -42,9 +42,9 @@
  8048664:	8b 45 0c             	mov    0xc(%ebp),%eax ; argv[1]
  8048667:	83 c0 04             	add    $0x4,%eax
  804866a:	8b 00                	mov    (%eax),%eax
+ 804866c:	89 44 24 04          	mov    %eax,0x4(%esp)
 
  # Perform setAnnotation on the first object and execute function from vtable on the second object.
- 804866c:	89 44 24 04          	mov    %eax,0x4(%esp) ; argv[1]
  8048670:	8b 44 24 14          	mov    0x14(%esp),%eax
  8048674:	89 04 24             	mov    %eax,(%esp)
  8048677:	e8 92 00 00 00       	call   804870e <_ZN1N13setAnnotationEPc> ; setAnnotation
