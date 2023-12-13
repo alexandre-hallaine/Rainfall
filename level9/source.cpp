@@ -4,6 +4,7 @@
 class N
 {
 private:
+    // int vtable;
     char annotation[100];
     int value;
 
