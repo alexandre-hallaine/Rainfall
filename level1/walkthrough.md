@@ -24,7 +24,7 @@ int main(void)
 }
 ```
 
-Let's focus on the main function. It reads input using the gets function, which is known to be unsafe due to its potential for causing buffer overflows, as it lacks a mechanism to limit the number of bytes read.
+Let's focus on the `main` function. It reads input using the gets function, which is known to be unsafe due to its potential for causing buffer overflows, as it lacks a mechanism to limit the number of bytes read.
 
 In this case, the program's stack is allocated 80 bytes:
 ```
@@ -40,7 +40,7 @@ The buffer is 64 bytes long. Therefore, passing more than 64 bytes to the progra
 
 Anything written beyond those 76 bytes (64 bytes of buffer + 12 bytes to reach the return address) will be treated as an address and jumped to by the `ret` instruction of the `main` function.
 
-Now, we need to find the address of the run function, which spawns a shell, to jump to it:
+Now, we need to find the address of the `run` function, which spawns a shell, to jump to it:
 ```
 (gdb) info function run
 All functions matching regular expression "run":
