@@ -38,7 +38,7 @@ In this case, the program's stack is allocated 80 bytes:
 The buffer is 64 bytes long. Therefore, passing more than 64 bytes to the program will result in a buffer overflow. Our goal is to overflow the stack until we reach the return address of the main function, which is 12 bytes after the buffer.
 > If the stack layout isn't as straightforward as the one in this exercise, you can just use a [Buffer overflow pattern generator](https://wiremask.eu/tools/buffer-overflow-pattern-generator/), to find the offset of the return address. However when possible try to understand the stack layout with the `sub` instruction.
 
-Anything written beyond those 76 bytes (64 bytes of buffer + 12 bytes to reach the return address) will be treated as an address and jumped to by the `ret` instruction of the `main` function.
+Anything written beyond those 76 bytes (64 bytes of buffer + 12 bytes to reach the return address) will be treated as an address (only the 4 next bytes) and jumped to by the `ret` instruction of the `main` function.
 
 Now, we need to find the address of the `run` function, which spawns a shell, to jump to it:
 ```
