@@ -24,7 +24,7 @@ int main(void)
 }
 ```
 
-Let's focus on the `main` function. It reads input using the gets function, which is known to be unsafe due to its potential for causing buffer overflows, as it lacks a mechanism to limit the number of bytes read.
+Let's focus on the `main` function. It reads input using the `gets` function, which is known to be unsafe due to its potential for causing buffer overflows, as it lacks a mechanism to limit the number of bytes read.
 
 In this case, the program's stack is allocated 80 bytes:
 ```

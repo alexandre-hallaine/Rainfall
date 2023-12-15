@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 int m;
+
 void v(void)
 {
     char buffer[512];
