@@ -1,4 +1,3 @@
-// compile with -fno-stack-protector
 #include <stdlib.h>
 #include <string.h>
 

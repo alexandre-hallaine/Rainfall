@@ -60,7 +60,7 @@ AAAA 200 b7fd1ac0 b7ff37d0 41414141
 
 In this output, 41414141, the hexadecimal representation of 'AAAA', is found at the fourth position.
 
-The assembly code reveals that the address of the `o` function is `0x080484a4` and we showed before that the address of the GOT table is `0x8049838`.
+Using gdb we find that that the address of the `o` function is `0x080484a4` and we showed before that the address of the GOT table is `0x8049838`.
 
 We can then craft our payload:
 ```
