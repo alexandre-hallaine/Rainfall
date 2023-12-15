@@ -48,8 +48,10 @@ In this case, the program's stack is allocated 104 bytes:
 # Move 4 bytes above ebp aka the return address into eax
 0x080484f2 <+30>:    mov    0x4(%ebp),%eax
 
-# Moving the return address into ebp - 12 which is our next variable
+# Moving the return address into ebp - 12 which is our next variable, it is an int so 4 bytes.
 0x080484f5 <+33>:    mov    %eax,-0xc(%ebp)
+
+There's still 12 bytes left before reaching our return address, these could be padding bytes or other variables. (except at ebp where it's the previous saved ebp address)
 ```
 
 Although we allocated 104 bytes on the stack, our buffer only starts at ebp - 76, which means that we only have to write 76 bytes before overflowing the stack. Furthermore, we need to write 4 bytes to reach the return address so 80 bytes in total (as shown in the assembly code above). Anything written beyond those 80 bytes will be treated as an address (only the 4 next bytes) and jumped to by the `ret` instruction of the `p` function.
