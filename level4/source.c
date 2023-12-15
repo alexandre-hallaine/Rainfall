@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+int m;
+
 void p(char *buffer)
 {
     printf(buffer);
 }
 
-int m;
 void n(void)
 {
     char buffer[512];

