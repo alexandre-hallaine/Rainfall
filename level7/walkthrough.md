@@ -49,7 +49,7 @@ int main(int argc, char **argv)
 
 Let's focus on the `main` function. It reads input from the command line then copies it to our buffer using `strcpy`, which is known to be unsafe due to its potential for causing buffer overflows, as it lacks a mechanism to limit the number of bytes copied.
 
-Since we're interacting with the heap here we won't have to worry about the stack layout, in this case we'll have to overflow the first buffer until we reach `buffer2->ptr` and write the address of the GOT entry of `puts` to it. Then thanks to the second `strcpy` we'll be able to overwrite the value that the GOT entry address for exit points to with the address of the `m` function.
+Since we're interacting with the heap here we won't have to worry about the stack layout, in this case we'll have to overflow the value pointed by `buffer1->ptr` until we reach `&buffer2->ptr` and write the address of the GOT entry of `puts` to it. Then, thanks to the second `strcpy`, we'll be able to overwrite the value that the GOT entry address for `puts` points to with the address of the `m` function.
 
 Yet again this exercise utilizes PLT and GOT, so please refer to the [level5 walkthrough](../level5/walkthrough.md) for a detailed explanation of how it works.
 
@@ -66,10 +66,17 @@ strcpy(0x0804a038, "arg2") = 0x0804a038
 [...]
 ```
 
-<!-- Since we want to write to `buffer2->ptr`, we need to overflow `buffer1->ptr` and then `buffer2->id` to reach it. So we can just do some math to find the offset needed to reach `buffer2->ptr`:
-- Offset calculation: The difference between the start of the first `strcpy` destination (`0x0804a018`) and the address of `buffer2` (`0x0804a028`) is 16 bytes.
-- `buffer2->id` is 4 bytes after the start of `buffer2` (as it's an `int`).
-- Total offset for overflow: `16 (distance to buffer2) + 4 (to reach buffer2->id) = 20`. -->
+As mentioned before we want overflow the value pointed by `buffer1->ptr` until we reach `&buffer2->ptr`. So let's calculate the offset needed:
+```
+buffer1->ptr = 0x0804a018
+buffer2 = 0x0804a028
+0x0804a028 - 0x0804a018 = 16 bytes
+
+0x0804a028 + 4 bytes (because buffer->id is an int) = 0x0804a02c
+&buffer2->ptr = 0x0804a02c
+
+16 bytes + 4 bytes = 20 bytes of padding
+```
 
 Using gdb we find that that the address of the `m` function is `0x080484f4` and that the address of the GOT entry for `puts` is `0x8049928`.
 
