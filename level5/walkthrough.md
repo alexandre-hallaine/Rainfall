@@ -33,9 +33,9 @@ int main(void)
 
 Let's focus on the `n` function. It reads input using the `fgets` function, which is known to be safe due to its mechanism to limit the number of bytes read. However the `printf` function is known to be unsafe when user input is passed as the format argument, it's referred to as a format string vulnerability.
 
-This exercise is the same as the previous ones, except that we have to write the address of the `o` function into the value that the address of GOT table points to, called by `exit`. Please refer to the [level3 walkthrough](../level3/walkthrough.md) for a detailed explanation of the format string vulnerability.
+This exercise is the same as the previous ones, except that we have to write the address of the `o` function into the value that the GOT entry address for `exit` points to. Please refer to the [level3 walkthrough](../level3/walkthrough.md) for a detailed explanation of the format string vulnerability.
 
-This only works because `exit` is a function in the Procedure Linkage Table (PLT), a mechanism used in dynamic linking to call external functions. When a function like `exit` is called, the PLT initially redirects to the Global Offset Table (GOT), which then points back to the PLT and subsequently to the dynamic linker for the first call.
+This only works because `exit` is a function in the Procedure Linkage Table (PLT), a mechanism used in dynamic linking to call external functions. When a function like `exit` is called, the PLT initially redirects to the Global Offset Table (GOT) entry for the function, which then points back to the PLT and subsequently to the dynamic linker for the first call. Once the dynamic linker has been called, the GOT is updated with the address of the function, and the next time the function is called, the GOT will point directly to the function.
 > Read more about that [here](https://reverseengineering.stackexchange.com/questions/1992/what-is-plt-got).
 
 Here you see the disassembly of the `exit` function:
@@ -48,7 +48,7 @@ Dump of assembler code for function exit@plt:
 ```
 
 The PLT is the set of instructions you see (`jmp`, `push`, `jmp`).  
-The GOT is referenced by the address `0x8049838`, which is used in the indirect jump instruction.
+The GOT entry for the `exit` function is referenced by the address `0x8049838`, which is used in the indirect jump instruction.
 
 The `jmp *0x8049838` instruction dereferences the address stored at `0x8049838` and jumps to it. After our tampering, this will be the address of the `o` function.
 
@@ -60,16 +60,16 @@ AAAA 200 b7fd1ac0 b7ff37d0 41414141
 
 In this output, 41414141, the hexadecimal representation of 'AAAA', is found at the fourth position.
 
-Using gdb we find that that the address of the `o` function is `0x080484a4` and we showed before that the address of the GOT table is `0x8049838`.
+Using gdb we find that that the address of the `o` function is `0x080484a4` and we showed before that the address of the GOT entry for `exit` is `0x8049838`.
 
 We can then craft our payload:
 ```
-address of the GOT table + address of o + %n format specifier pointing to the fourth argument
+address of the GOT entry for exit + address of o + %n format specifier pointing to the fourth argument
 
 "\x08\x04\x98\x38"[::-1] + "%134513824p" + "%4$n"
 ```
 
-Since we need to write `080484A4` into the value pointed to by the address of the GOT table, we write 134513828 (`080484A4` in decimal) characters (4 from the address of the GOT table and 134513824 from the width specifier of `%p`).  
+Since we need to write `080484A4` into the value pointed to by the address of the GOT entry for `exit`, we write 134513828 (`080484A4` in decimal) characters (4 from the address of the GOT table and 134513824 from the width specifier of `%p`).  
 Then, we use the `%n` format specifier to write the count of bytes written so far into the fourth argument, which corresponds to the GOT table address.
 
 Let's run our payload:
