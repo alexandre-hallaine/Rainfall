@@ -6,15 +6,15 @@ class N
 private:
     // int vtable;
     char annotation[100];
-    int value;
+    int nbr;
 
 public:
-    N(int val) : value(val) {}
+    N(int val) : nbr(val) {}
 
     void setAnnotation(char *ann) { std::memcpy(this->annotation, ann, std::strlen(ann)); }
 
-    virtual int operator+(N &other) { return this->value + other.value; }
-    virtual int operator-(N &other) { return this->value - other.value; }
+    virtual int operator+(N &other) { return this->nbr + other.nbr; }
+    virtual int operator-(N &other) { return this->nbr - other.nbr; }
 };
 
 int main(int argc, char **argv)
