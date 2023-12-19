@@ -7,7 +7,7 @@ g++ -fno-stack-protector source.c
 ```
 
 Let's take a look at the source code:
-```c
+```cpp
 #include <cstring>
 #include <cstdlib>
 

