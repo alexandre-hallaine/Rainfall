@@ -3,7 +3,7 @@
 ## Answer
 Our C source code generates the same assembly code as the original binary. Compile it as follows:
 ```
-g++ -fno-stack-protector source.c
+gcc -fno-stack-protector source.c
 ```
 
 Let's take a look at the source code:
@@ -85,7 +85,7 @@ memcpy(0xbffff704, "TEST", 44) = 0xbffff704
 
 As we can see, `atoi` returns `0x8000000b` which is `11` in decimal (if we ignore the 8). Furthermore, `memcpy` copies `44` bytes to the buffer, which means we can write over `ret`.
 
-There's different ways to solve this challenge, we'll see two of them. First the intended way (I assume) with writing over the int and then the ret2libc way.
+There's different ways to solve this challenge, we'll see two of them. First the intended way with writing over the int and then the ret2libc way.
 
 ### Write over the int
 As mentionned above, we can write over the `ret` variable with the following:
@@ -107,14 +107,7 @@ $ cat /home/user/bonus2/.pass
 Perfect, let's move to the other solution.
 
 ### Ret2Libc
-Ret2Libc (Return-to-Libc) is an exploit technique that redirects the program flow to execute existing library functions.
-
-A typical Ret2Libc exploit is constructed as follows:
-```
-padding + address of system + address of exit + address of "/bin/sh"
-
-The address of exit is actually optional, but not providing it will cause the program to crash after executing the system function.
-```
+Check the [level1's walkthrough](../level1/walkthrough.md#ret2libc) for an explanation of the ret2libc technique.
 
 We, therefore, need the addresses of the `system`, `exit` functions and the string `/bin/sh` in memory. These are found using GDB:
 

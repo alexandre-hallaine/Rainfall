@@ -1,10 +1,10 @@
 # Bonus 3
 
 ## Answer
-Our C source code generates the same assembly code as the original binary. Compile it as follows:
+Our C source code generates almost the same assembly code as the original binary. Compile it as follows:
 > There is a slight difference as mentioned in the comments of the source code. I'm not sure why this optimization doesn't happen with our C source code, but it doesn't change the program's behavior.
 ```
-g++ -fno-stack-protector source.c
+gcc -fno-stack-protector source.c
 ```
 
 Let's take a look at the source code:

@@ -40,7 +40,7 @@ The buffer is 64 bytes long. Therefore, passing more than 64 bytes to the progra
 
 Anything written beyond those 76 bytes (64 bytes of buffer + 12 bytes to reach the return address) will be treated as an address (only the 4 next bytes) and jumped to by the `ret` instruction of the `main` function.
 
-There's different ways to solve this challenge, we'll see two of them. First the intended way (I assume) with a ret to the run function and then the ret2libc way.
+There's different ways to solve this challenge, we'll see two of them. First the intended way with a ret to the run function and then the ret2libc way.
 
 ### Ret2run
 So, we need to find the address of the `run` function, which spawns a shell, to jump to it:
@@ -69,6 +69,8 @@ Good... Wait what?
 Perfect, let's move to the other solution.
 
 ### Ret2libc
+Obviously, for this level, a ret2libc isn't necessary as we can just jump to the `run` function. However, it's a good exercise to understand how it works. I'll refer to this walkthrough in the future when a ret2libc is necessary.
+
 Ret2Libc (Return-to-Libc) is an exploit technique that redirects the program flow to execute existing library functions.
 
 A typical Ret2Libc exploit is constructed as follows:
@@ -116,3 +118,4 @@ level1@RainFall:~$ (python -c 'print("0"*76 + "\x08\x04\x83\x60"[::-1] + "\xb7\x
 ```
 
 We are now level2! Let's move on to the next level.
+> We could also have used a ret2shellcode but since we'll be doing it in the next level, I'll skip it for now.

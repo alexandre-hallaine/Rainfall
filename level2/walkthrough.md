@@ -94,14 +94,7 @@ j
 Perfect, let's move to the other solution.
 
 ### Ret2Libc
-Ret2Libc (Return-to-Libc) is an exploit technique that doesn't require injecting shellcode but instead redirects the program flow to execute existing library functions.
-
-A typical Ret2Libc exploit is constructed as follows:
-```
-padding + address of system + address of exit + address of "/bin/sh"
-
-The address of exit is actually optional, but not providing it will cause the program to crash after executing the system function.
-```
+Check the [level1's walkthrough](../level1/walkthrough.md#ret2libc) for an explanation of the ret2libc technique.
 
 We, therefore, need the addresses of the `system`, `exit` functions and the string `/bin/sh` in memory. These are found using GDB:
 
