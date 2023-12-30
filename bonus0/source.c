@@ -13,17 +13,18 @@ void p(char *str, char *str2)
     strncpy(str, buf, 20);
 }
 
+// sub is incorrect by 4 bytes and ebx is not used
 void pp(char *str)
 {
     char buf[20];
-    char buf2[20]; // sub doesn't change for some reason
+    char buf2[20];
 
     p(buf2, " - ");
     p(buf, " - ");
 
     strcpy(str, buf2);
 
-    str[strlen(str)] = *a; // How to make use of ebx here ?
+    str[strlen(str)] = *a;
 
     strcat(str, buf);
 }

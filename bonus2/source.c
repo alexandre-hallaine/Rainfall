@@ -48,6 +48,6 @@ int main(int argc, char **argv)
         else if (memcmp(ret, "nl", 2) == 0)
             language = 2;
     }
-    memcpy(truc, buf, 76); // This is incorrect, just to mimic the binary
+    //memcpy(truc, buf, 76); // This is incorrect, just to mimic the binary
     greetuser(buf);
 }

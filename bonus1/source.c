@@ -4,7 +4,7 @@
 
 int main(int argc, char **argv)
 {
-    int ret; // Can't use size_t directly because of the if condition optimization
+    int ret;
     char buf[40];
 
     ret = atoi(argv[1]);

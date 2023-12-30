@@ -67,7 +67,7 @@ Since our goal is to overflow the stack until we reach the return address of the
 
 Anything written beyond those 80 bytes will be treated as an address (only the 4 next bytes) and jumped to by the `ret` instruction of the `main` function.
 
-There's different ways to solve this challenge, we'll see two of them. First the intended way (I assume) with a ret2shellcode and then the ret2libc way.
+There's different ways to solve this challenge, we'll see two of them. First with a ret2shellcode and then the ret2libc way.
 
 ### Ret2Shellcode
 We opt for a shellcode designed to spawn a shell. This shellcode, taken from the [Exploit Database](https://www.exploit-db.com/exploits/41757), is compact and effective for our purpose:
