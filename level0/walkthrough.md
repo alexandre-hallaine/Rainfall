@@ -1,7 +1,7 @@
 # Level0
 
 ## Foreword
-In the following walkthroughs, we frequently reference the source code we wrote. This is due to our initial step of translating the assembly code into C code.
+In the following walkthroughs, we will frequently reference the source code we wrote. This is due to our initial step of translating the assembly code into C code.
 
 Our aim was to align our C code closely with the original source code, a goal we largely achieved. Nonetheless, there are some deviations, which we will highlight as needed. We will also refer to the assembly code only when necessary.
 
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
 The program takes a single argument, converts it to an integer, and compares it to 423.
 
 If the comparison is true, the program executes `/bin/sh` with the same privileges as the owner's group and user.
-> *Because the setuid bit is set on the binary, the program will run with the privileges of the owner, which is level1.*
+> Because the setuid bit is set on the binary, the program will run with the privileges of the owner, which is level1. This is true for all the binaries in this project.
 
 Otherwise, it prints `No !\n` to stderr.
 

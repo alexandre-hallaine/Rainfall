@@ -26,21 +26,37 @@ int main(void)
 
 Let's focus on the `main` function. It reads input using the `gets` function, which is known to be unsafe due to its potential for causing buffer overflows, as it lacks a mechanism to limit the number of bytes read.
 
-In this case, the program's stack is allocated 80 bytes:
+Let's analyze the stack layout of our program:
+```bash
+(gdb) b *main+21 # Breaking before leave
+Breakpoint 1 at 0x8048495
+
+(gdb) r # Run the program
+Starting program: /home/user/level1/level1
+
+Breakpoint 1, 0x08048495 in main ()
+
+(gdb) info registers # Check esp and ebp addresses
+[...]
+esp            0xbffff6e0       0xbffff6e0
+ebp            0xbffff738       0xbffff738
+[...]
 ```
-# Allocating 80 bytes on the stack
-0x08048486 <+6>:     sub    $0x50,%esp
 
-# Calculate the address of esp + 16, since we allocated 80 bytes for the stack our buffer will therefore be 64 bytes.
-0x08048489 <+9>:     lea    0x10(%esp),%eax
+By calculating the difference between `esp` and `ebp` we can see that the stack is allocated 88 bytes:
 ```
+0xbffff738 - 0xbffff6e0 = 58 (88 in decimal)
+```	
 
-The buffer is 64 bytes long. Therefore, passing more than 64 bytes to the program will result in a buffer overflow. Our goal is to overflow the stack until we reach the return address of the main function, which is 12 bytes after the buffer.
-> If the stack layout isn't as straightforward as the one in this exercise, you can just use a [Buffer overflow pattern generator](https://wiremask.eu/tools/buffer-overflow-pattern-generator/), to find the offset of the return address. However when possible try to understand the stack layout with the `sub` instruction.
+Furthermore, we can see that our buffer is located at `0x10(%esp),%eax`. Since there is 88 bytes for the stack, our buffer will therefore requiere 72 bytes (88 - 16) before reaching `ebp`.
 
-Anything written beyond those 76 bytes (64 bytes of buffer + 12 bytes to reach the return address) will be treated as an address (only the 4 next bytes) and jumped to by the `ret` instruction of the `main` function.
+Since our goal is to overflow the stack until we reach the return address of the main function, we need to add another 4 bytes to go from `ebp` to `ebp + 4` (the return address). So a total of 76 bytes (72 + 4).
+> If you're struggling, you can just use a [Buffer overflow pattern generator](https://wiremask.eu/tools/buffer-overflow-pattern-generator/), to find the offset of the return address. However it is recommended to understand how it works.
+
+Anything written beyond those 76 bytes will be treated as an address (only the 4 next bytes) and jumped to by the `ret` instruction of the `main` function.
 
 There's different ways to solve this challenge, we'll see two of them. First the intended way with a ret to the run function and then the ret2libc way.
+> When we refer to padding, we mean the bytes we need to write before reaching the return address.
 
 ### Ret2run
 So, we need to find the address of the `run` function, which spawns a shell, to jump to it:

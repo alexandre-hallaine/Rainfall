@@ -37,24 +37,35 @@ int main(void)
 
 Let's focus on the `p` function. It reads input using the `gets` function, which is known to be unsafe due to its potential for causing buffer overflows, as it lacks a mechanism to limit the number of bytes read.
 
-In this case, the program's stack is allocated 104 bytes:
+Let's analyze the stack layout of our program:
+```bash
+(gdb) b *p+105 # Breaking before leave
+Breakpoint 1 at 0x804853d
+
+(gdb) r # Run the program
+Starting program: /home/user/level2/level2
+
+
+Breakpoint 1, 0x0804853d in p ()
+
+(gdb) info registers # Check esp and ebp addresses
+[...]
+esp            0xbffff6c0       0xbffff6c0
+ebp            0xbffff728       0xbffff728
+[...]
 ```
-# Allocating 104 bytes on the stack
-0x080484d7 <+3>:     sub    $0x68,%esp
 
-# Calculate the address of ebp - 76, since we allocated 104 bytes for the stack and since our next variable start at ebp - 12, our buffer will therefore be 64 bytes (here buf is an int array, so 64 bytes = 16 * 4 bytes)
-0x080484e7 <+19>:    lea    -0x4c(%ebp),%eax
-
-# Move 4 bytes above ebp aka the return address into eax
-0x080484f2 <+30>:    mov    0x4(%ebp),%eax
-
-# Moving the return address into ebp - 12 which is our next variable, it is an int so 4 bytes.
-0x080484f5 <+33>:    mov    %eax,-0xc(%ebp)
-
-There's still 12 bytes left before reaching our return address, these could be padding bytes or other variables. (except at ebp where it's the previous saved ebp address)
+By calculating the difference between `esp` and `ebp` we can see that the stack is allocated 104 bytes:
 ```
+0xbffff728 - 0xbffff6c0 = 68 (104 in decimal)
+```	
 
-Although we allocated 104 bytes on the stack, our buffer only starts at `ebp - 76`, which means that we only have to write 76 bytes before overflowing the stack. Furthermore, we need to write 4 bytes to reach the return address so 80 bytes in total (as shown in the assembly code above). Anything written beyond those 80 bytes will be treated as an address (only the 4 next bytes) and jumped to by the `ret` instruction of the `p` function.
+Furthermore, we can see that our buffer is located at `-0x4c(%ebp),%eax`. Since our buffer is located at `ebp - 76`, we only have to write 76 bytes before reaching `ebp`.
+> In this case we don't have to take the bytes between `esp` and `ebp` into account because the offset of our buffer is relative to `ebp`. `ebp` is the base pointer, whom's value is set at the beginning of the function. So the offset of our buffer will always be the same. Whereas `esp` is the stack pointer, whom's value changes during the execution of the program.
+
+Since our goal is to overflow the stack until we reach the return address of the main function, we need to add another 4 bytes to go from `ebp` to `ebp + 4` (the return address). So a total of 80 bytes (76 + 4).
+
+Anything written beyond those 80 bytes will be treated as an address (only the 4 next bytes) and jumped to by the `ret` instruction of the `main` function.
 
 There's different ways to solve this challenge, we'll see two of them. First the intended way (I assume) with a ret2shellcode and then the ret2libc way.
 
