@@ -26,7 +26,7 @@ void greetuser(char *str)
     puts(buf);
 }
 
-// one line difference main+31 (extra use of eax)
+// one line difference main+31 (extra use of eax) and what appears to be a memcpy
 int main(int argc, char **argv)
 {
     char buf[76];
@@ -48,6 +48,6 @@ int main(int argc, char **argv)
         else if (memcmp(ret, "nl", 2) == 0)
             language = 2;
     }
-    //memcpy(truc, buf, 76); // This is incorrect, just to mimic the binary
+    /* memcpy(esp, buf, 76); This happens in the assembly, I assume because of an optimization */
     greetuser(buf);
 }

