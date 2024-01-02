@@ -6,7 +6,7 @@
 
 RainFall is an iso challenge slightly more complex than SnowCrash. You will have to dive deep into reverse engineering, learn to reconstruct a code, and understand it to detect faults. Will you reach the last level?
 
-Since this is the second project of the security branch, we will be using the knowledge we acquired in the previous project, [SnowCrash](https://github.com/Assxios/SnowCrash/blob/main/README.md).
+Since this is the second project of the security branch, we will be using the knowledge we acquired in the previous project, [SnowCrash](https://github.com/Assxios/SnowCrash).
 
 # Foreword
 
