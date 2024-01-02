@@ -3,7 +3,7 @@
 ## Answer
 Our C source code generates the same assembly code as the original binary. Compile it as follows:
 ```
-gcc -fno-stack-protector -static source.c
+gcc -fno-stack-protector source.c
 ```
 
 Let's take a look at the source code:
@@ -42,7 +42,7 @@ esp            0xbffff6e0       0xbffff6e0
 ebp            0xbffff738       0xbffff738
 [...]
 ```
-> You will often see me breaking before the `leave` instruction, this is because the `leave` instruction is equivalent to `mov %ebp, %esp` followed by `pop %ebp`. Futhermore the stack will be at the correct size at this point, which is not always the case before the `leave` instruction. Essentially I will always try to break before the `leave` instruction of the function I am trying to overflow, it may not always be the `main` function.
+> You will notice that we break before the `leave` instruction, this is because the `leave` instruction is equivalent to `mov %ebp, %esp` followed by `pop %ebp`. Futhermore the stack will be at the correct size at this point, which is not always the case before the `leave` instruction. Essentially I will always try to break before the `leave` instruction of the function I am trying to overflow, it may not always be the `main` function.
 
 By calculating the difference between `esp` and `ebp` we can see that the stack is allocated 88 bytes:
 ```
@@ -52,7 +52,7 @@ By calculating the difference between `esp` and `ebp` we can see that the stack 
 Furthermore, we can see that our buffer is located at `0x10(%esp),%eax`. Since there is 88 bytes for the stack, our buffer will therefore requiere 72 bytes (88 - 16) before reaching `ebp`.
 
 Since our goal is to overflow the stack until we reach the return address of the main function, we need to add another 4 bytes to go from `ebp` to `ebp + 4` (the return address). So a total of 76 bytes (72 + 4).
-> If you're struggling, you can just use a [Buffer overflow pattern generator](https://wiremask.eu/tools/buffer-overflow-pattern-generator/), to find the offset of the return address. However it is recommended to understand how it works.
+> If you're struggling, you can just use a [Buffer overflow pattern generator](https://wiremask.eu/tools/buffer-overflow-pattern-generator/), to find the offset of the return address. However it is recommended to understand the stack layout and how to calculate the offset yourself.
 
 Anything written beyond those 76 bytes will be treated as an address (only the 4 next bytes) and jumped to by the `ret` instruction of the `main` function.
 
@@ -146,7 +146,7 @@ We opt for a shellcode designed to spawn a shell. This shellcode, taken from the
 
 `\x31\xc9\x6a\x0b\x58\x99\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\xcd\x80`
 
-Our goal is to write this shellcode in memory or in an environment variable and jump to it, it will then be executed, which will spawn a shell. Essentially the equivalent of `system("/bin/sh")`.
+Our goal is to write this shellcode in memory or in an environment variable and jump to it, it will then be executed, which will spawn a shell. Executing our shellcode is basically the equivalent of running `system("/bin/sh")`.
 
 #### Exploit
 We can either feed our shellcode to the program, or we can put the shellcode in an environment variable. For convenience, we'll use the environment variable:

