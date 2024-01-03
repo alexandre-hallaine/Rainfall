@@ -31,20 +31,20 @@ int main(void)
 }
 ```
 
-Let's focus on the `v` function. It reads input using the `fgets` function, which is known to be safe due to its mechanism to limit the number of bytes read. However the `printf` function is known to be unsafe when user input is passed as the format argument, it's referred to as a format string vulnerability.
+Let's focus on the `v` function. It reads input using the `fgets` function, which is known to be safe due to its mechanism to limit the number of bytes read. However, the `printf` function is known to be unsafe when user input is passed as the format argument, it's referred to as a format string vulnerability.
 > You can read more about format string vulnerabilities [here](https://owasp.org/www-community/attacks/Format_string_attack).
 
-We notice from the C code that we'll have to somehow write 64 bytes to the `m` variable to spawn a shell. We can do this by exploiting the format string vulnerability, thanks to the `%n` format specifier, which writes the number of bytes written so far to the corresponding argument. We'll make sure the corresponding argument is the `m` variable's address.
+We notice from the C code that we'll have to somehow write 64 bytes to the `m` variable to spawn a shell. We can do this by exploiting the format string vulnerability, thanks to the `%n` format specifier, which writes the number of bytes written so far to the corresponding argument. Furthermore, we'll make sure the corresponding argument is the `m` variable's address.
 
 Before crafting our payload, we have to locate our input string on the stack and determine the address of `m`.
 
-To locate our input string on the stack, we send a string with format specifiers, specifically the %x specifier, to printf. This specifier prints the next argument as a hexadecimal value. Since we don't pass any arguments to `printf`, it will print the values on the stack:
+To locate our input string on the stack, we send a string with format specifiers, specifically the `%x` specifier, to `printf`. This specifier prints the next argument as a hexadecimal value. Since we don't pass any arguments to `printf`, it will print the values on the stack:
 ```bash
 level3@RainFall:~$ python -c 'print("%x %x %x")' | ./level3
 200 b7fd1ac0 b7ff37d0
 ```
 
-To pinpoint our input string on the stack, we need to precede our %x format specifiers with a dummy string:
+To pinpoint our input string on the stack, we need to precede our `%x` format specifiers with a dummy string:
 
 ```bash
 level3@RainFall:~$ python -c 'print("AAAA %x %x %x %x")' | ./level3

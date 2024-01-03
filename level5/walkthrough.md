@@ -31,7 +31,7 @@ int main(void)
 }
 ```
 
-Let's focus on the `n` function. It reads input using the `fgets` function, which is known to be safe due to its mechanism to limit the number of bytes read. However the `printf` function is known to be unsafe when user input is passed as the format argument, it's referred to as a format string vulnerability.
+Let's focus on the `n` function. It reads input using the `fgets` function, which is known to be safe due to its mechanism to limit the number of bytes read. However, the `printf` function is known to be unsafe when user input is passed as the format argument, it's referred to as a format string vulnerability.
 
 This exercise is the same as the previous ones, except that we have to write the address of the `o` function into the value that the GOT entry address for `exit` points to. Please refer to the [level3 walkthrough](../level3/walkthrough.md) for a detailed explanation of the format string vulnerability.
 
@@ -60,7 +60,7 @@ AAAA 200 b7fd1ac0 b7ff37d0 41414141
 
 In this output, 41414141, the hexadecimal representation of 'AAAA', is found at the fourth position.
 
-Using gdb we find that that the address of the `o` function is `0x080484a4` and we showed before that the address of the GOT entry for `exit` is `0x8049838`.
+Using GDB we find that the address of the `o` function is `0x080484a4`, and we showed before that the address of the GOT entry for `exit` is `0x8049838`.
 
 We can then craft our payload:
 ```

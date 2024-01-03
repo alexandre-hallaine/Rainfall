@@ -1,7 +1,7 @@
 # Level 9
 
 ## Answer
-Our Cpp source code generates the same assembly code as the original binary. Compile it as follows:
+Our CPP source code generates the same assembly code as the original binary. Compile it as follows:
 ```
 g++ -fno-stack-protector source.c
 ```
@@ -47,7 +47,7 @@ int main(int argc, char **argv)
 Let's focus on the `main` function. It reads input from the command line and then copies it to the `annotation` buffer using `memcpy`. Although `memcpy` is generally considered safe, in this case, we're copying the input without checking its size, which can lead to a buffer overflow. The `setAnnotation` function is called on the first object, allowing us to overflow the first object's buffer and potentially reach the second object's VTable address.
 
 The VTable contains pointers to the virtual functions of the class. When a virtual function is called, the program looks up the VTable to find the address of the function to call. Therefore, by overwriting the VTable pointer, we can manipulate the virtual function call.
-> Learn more about vtables [here](https://pabloariasal.github.io/2017/06/10/understanding-virtual-tables/).
+> Learn more about Vtables [here](https://pabloariasal.github.io/2017/06/10/understanding-virtual-tables/).
 
 If we overwrite the VTable pointer with the address of a function or location of our choice, the program will jump to that address instead of the VTable. Then, it will perform another jump, thinking it's jumping to the function pointed to by the VTable. However, it will actually be jumping to our address, allowing us to execute arbitrary code.
 

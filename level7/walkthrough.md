@@ -66,7 +66,7 @@ strcpy(0x0804a038, "arg2") = 0x0804a038
 [...]
 ```
 
-As mentioned before we want overflow the value pointed by `buffer1->ptr` until we reach `&buffer2->ptr`. So let's calculate the offset needed:
+As mentioned before we want to overflow the value pointed by `buffer1->ptr` until we reach `&buffer2->ptr`. So let's calculate the offset needed:
 ```
 buffer1->ptr = 0x0804a018
 buffer2 = 0x0804a028
@@ -78,7 +78,7 @@ buffer2 = 0x0804a028
 16 bytes + 4 bytes = 20 bytes of padding
 ```
 
-Using gdb we find that that the address of the `m` function is `0x080484f4` and that the address of the GOT entry for `puts` is `0x8049928`.
+Using GDB we find that the address of the `m` function is `0x080484f4` and that the address of the GOT entry for `puts` is `0x8049928`.
 
 We can then craft our payload:
 ```

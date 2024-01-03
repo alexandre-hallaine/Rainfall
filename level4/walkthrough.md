@@ -34,7 +34,7 @@ int main(void)
 }
 ```
 
-Let's focus on the `v` function. It reads input using the `fgets` function, which is known to be safe due to its mechanism to limit the number of bytes read. However the `printf` function (called from the `p` function) is known to be unsafe when user input is passed as the format argument, it's referred to as a format string vulnerability.
+Let's focus on the `v` function. It reads input using the `fgets` function, which is known to be safe due to its mechanism to limit the number of bytes read. However, the `printf` function (called from the `p` function) is known to be unsafe when user input is passed as the format argument, it's referred to as a format string vulnerability.
 
 This exercise is the same as the previous one, except that we have to write 16930116 bytes to the `m` variable to spawn a shell. Please refer to the [level3 walkthrough](../level3/walkthrough.md) for a detailed explanation of the format string vulnerability.
 

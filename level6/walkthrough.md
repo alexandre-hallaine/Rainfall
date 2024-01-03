@@ -48,10 +48,10 @@ malloc(4) = 0x0804a050
 [...]
 ```
 
-We notice that the first memory block is allocated 64 bytes and the second one 4 bytes. We also notice that the address of the first block is `0x0804a008` and the address of the second one is `0x0804a050`.  
+We notice that the first memory block is allocated 64 bytes and the second one 4 bytes. Furthermore, we also notice that the address of the first block is `0x0804a008` and the address of the second one is `0x0804a050`.  
 So we simply have to subtract the addresses to get the size of the overflow needed to reach the function pointer: `0x0804a050` - `0x0804a008` = 0x48 (72 in decimal)
 
-Using gdb we find that that the address of the `n` function is `0x08048454`.
+Using GDB we find that the address of the `n` function is `0x08048454`.
 
 We can then craft our payload:
 ```

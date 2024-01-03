@@ -42,21 +42,21 @@ esp            0xbffff6e0       0xbffff6e0
 ebp            0xbffff738       0xbffff738
 [...]
 ```
-> You will notice that we break before the `leave` instruction, this is because the `leave` instruction is equivalent to `mov %ebp, %esp` followed by `pop %ebp`. Futhermore the stack will be at the correct size at this point, which is not always the case before the `leave` instruction. Essentially I will always try to break before the `leave` instruction of the function I am trying to overflow, it may not always be the `main` function.
+> You will notice that we break before the `leave` instruction, this is because the `leave` instruction is equivalent to `mov %ebp, %esp` followed by `pop %ebp`. Furthermore, the stack will be at the correct size at this point, which is not always the case before the `leave` instruction. Essentially I will always try to break before the `leave` instruction of the function I am trying to overflow, it may not always be the `main` function.
 
 By calculating the difference between `esp` and `ebp` we can see that the stack is allocated 88 bytes:
 ```
 0xbffff738 - 0xbffff6e0 = 58 (88 in decimal)
 ```	
 
-Furthermore, we can see that our buffer is located at `0x10(%esp),%eax`. Since there is 88 bytes for the stack, our buffer will therefore requiere 72 bytes (88 - 16) before reaching `ebp`.
+Furthermore, we can see that our buffer is located at `0x10(%esp),%eax`. Since there is 88 bytes for the stack, our buffer will therefore require 72 bytes (88 - 16) before reaching `ebp`.
 
 Since our goal is to overflow the stack until we reach the return address of the main function, we need to add another 4 bytes to go from `ebp` to `ebp + 4` (the return address). So a total of 76 bytes (72 + 4).
-> If you're struggling, you can just use a [Buffer overflow pattern generator](https://wiremask.eu/tools/buffer-overflow-pattern-generator/), to find the offset of the return address. However it is recommended to understand the stack layout and how to calculate the offset yourself.
+> If you're struggling, you can just use a [Buffer overflow pattern generator](https://wiremask.eu/tools/buffer-overflow-pattern-generator/), to find the offset of the return address. However, it is recommended to understand the stack layout and how to calculate the offset yourself.
 
 Anything written beyond those 76 bytes will be treated as an address (only the 4 next bytes) and jumped to by the `ret` instruction of the `main` function.
 
-There's different ways to solve this challenge, we'll see three of them. First the intended way with a ret to the run function, then the ret2libc way and finally the ret2shellcode way.
+There are different ways to solve this challenge, we'll see three of them. First the intended way with a ret to the run function, then the ret2libc way and finally the ret2shellcode way.
 > When we refer to padding, we mean the bytes we need to write before reaching the return address.
 
 ### Ret2run

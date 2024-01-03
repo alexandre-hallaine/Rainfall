@@ -67,7 +67,7 @@ Since our goal is to overflow the stack until we reach the return address of the
 
 Anything written beyond those 80 bytes will be treated as an address (only the 4 next bytes) and jumped to by the `ret` instruction of the `main` function.
 
-There's different ways to solve this challenge, we'll see two of them. First with a ret2shellcode and then the ret2libc way.
+There are different ways to solve this challenge, we'll see two of them. First with a ret2shellcode and then the ret2libc way.
 
 ### Ret2Libc
 Check the [level1's walkthrough](../level1/walkthrough.md#ret2libc) for an explanation of the ret2libc technique.
@@ -95,7 +95,7 @@ We, therefore, need the addresses of the `system`, `exit` functions and the stri
 1 pattern found.
 ```
 
-However we'll need to include an extra step because of the following lines:
+However, we'll need to include an extra step because of the following lines:
 ```c
 if ((tmp & 0xb0000000) == 0xb0000000)
 {
@@ -104,7 +104,7 @@ if ((tmp & 0xb0000000) == 0xb0000000)
 }
 ```
 
-Ealier, I mentionned that the return address was put into our next variable, which is `tmp`. So the `&` operator, along with the `0xb0000000` mask is used to check if our return address most significant byte is equal to `0xb`. If it is, the program will exit. So we need to find an address that doesn't start with `0xb`. 
+Earlier, I mentioned that the return address was put into our next variable, which is `tmp`. So the `&` operator, along with the `0xb0000000` mask is used to check if our return address most significant byte is equal to `0xb`. If it is, the program will exit. So we need to find an address that doesn't start with `0xb`. 
 
 Given that the address of the `system` function begins with `0xb`, it cannot be directly used. So we'll have to include the address of a `ret` instruction in our payload. When the program attempts to return to this address, the `ret` instruction pops the address of `system` into the EIP register, causing the program to jump to `system`.
 

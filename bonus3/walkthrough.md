@@ -44,8 +44,8 @@ int main(int argc, char **argv)
 
 Let's focus on the `main` function. It reads input from the command line and then `atoi` converts it to an integer, which is used to set a null byte in the `buf` buffer. Since we're going to compare the `buf` buffer with the `argv[1]` argument, and if they are equal, we will spawn a shell, we need to find a way for them to be equal.
 
-However there is a catch, the `buf` buffer is filled with 66 bytes from the `/home/user/end/.pass` file, and then 65 bytes from the same file are appended to the `buf` buffer. There is no way for us to know the content of the file.  
-But there's a way to cheat on the `strcmp` function, indeed, if we provide an empty string as the `argv[1]` argument, the `atoi` function will return 0, which will set the first byte of the `buf` buffer to 0. And, since the string was empty, `argv[1]` will also be 0. Therefore, the `strcmp` function will return 0 and we will spawn a shell.
+However, there is a catch, the `buf` buffer is filled with 66 bytes from the `/home/user/end/.pass` file, and then 65 bytes from the same file are appended to the `buf` buffer. There is no way for us to know the content of the file.  
+But there's a way to cheat on the `strcmp` function, indeed, if we provide an empty string as the `argv[1]` argument, the `atoi` function will return 0, which will set the first byte of the `buf` buffer to 0. And, since the string was empty, `argv[1]` will also be 0. Therefore, the `strcmp` function will return 0, and we will spawn a shell.
 
 Let's try it:
 ```bash

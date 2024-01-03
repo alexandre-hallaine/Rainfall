@@ -88,14 +88,14 @@ strdup("\n") = 0x0804a018 # service
 level8@RainFall:~$
 ```
 
-We notice that the the user structure is allocated at `0x0804a008` for only 4 bytes, which is not enough to store the whole structure that is 36 bytes long. We also notice that the service buffer is allocated at `0x0804a018` (so within the same memory space as the user structure, since it is located between `0x0804a008` and `0x0804a028`). Futhermore we notice that the `is_auth` field is located at the 32nd byte of the user structure.  
+We notice that the user structure is allocated at `0x0804a008` for only 4 bytes, which is not enough to store the whole structure that is 36 bytes long. Furthermore, we also notice that the service buffer is allocated at `0x0804a018` (so within the same memory space as the user structure, since it is located between `0x0804a008` and `0x0804a028`). Moreover, we notice that the `is_auth` field is located at the 32nd byte of the user structure.  
 So let's simply calculate the offset needed to reach `is_auth`:
 ```
 0x0804a018 - 0x0804a008 = 0x10 (16 in decimal)
 32 - 16 = 16 bytes of padding
 ```
 
-We substract 32 from 16 because the `service` buffer was already allocated 16 bytes after the user structure. So we'll have to write 16 bytes of padding to reach `is_auth`. Anything written after that will overwrite `is_auth`.
+We subtract 32 from 16 because the `service` buffer was already allocated 16 bytes after the user structure. So we'll have to write 16 bytes of padding to reach `is_auth`. Anything written after that will overwrite `is_auth`.
 
 Let's craft our payload:
 ```
@@ -106,7 +106,7 @@ Let's craft our payload:
 "auth \n" + "service" + "A"*16 + "\n" + "login\n"
 ```
 
-The `\n` are needed to simulate the user pressing the enter key and it will also serve as the 17th character needed to overwrite `is_auth`.
+The `\n` are needed to simulate the user pressing the enter key, and it will also serve as the 17th character needed to overwrite `is_auth`.
 
 Let's run our payload:
 ```bash

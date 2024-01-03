@@ -53,7 +53,7 @@ int main()
 
 Let's focus on the `main` function. It reads input using the `read` function, the null terminator is then added with `strchr` and the string is copied to the `buf` buffer using `strncpy` with a size of 20. However, the `strncpy` function doesn't add a null terminator if the string is longer than the size provided. Therefore, the `str` buffer will not be null terminated.
 
-This will result in `strcpy` copying the `buf2` buffer to the `str` buffer, but it will not stop at the null terminator, since there is none, tt will continue to copy the `buf` buffer to the `str` buffer. Then `strcat` will append the `buf` buffer to the `str` buffer which will allow us to overflow the buffer and overwrite the return address of the `main` function.
+This will result in `strcpy` copying the `buf2` buffer to the `str` buffer, but it will not stop at the null terminator, since there is none, it will continue to copy the `buf` buffer to the `str` buffer. Then `strcat` will append the `buf` buffer to the `str` buffer which will allow us to overflow the buffer and overwrite the return address of the `main` function.
 
 
 Let's first see how many bytes we need to overflow the buffer by analyzing the stack layout of our program:
@@ -83,7 +83,7 @@ By calculating the difference between `esp` and `ebp` we can see that the stack 
 0xbffff738 - 0xbffff6f0 = 48 (72 in decimal)
 ```
 
-Furthermore, we can see that our buffer is located at `0x16(%esp),%eax`. Since there is 72 bytes for the stack, our buffer will therefore requiere 50 bytes (72 - 22) before reaching `ebp`.
+Furthermore, we can see that our buffer is located at `0x16(%esp),%eax`. Since there is 72 bytes for the stack, our buffer will therefore require 50 bytes (72 - 22) before reaching `ebp`.
 
 Since our goal is to overflow the stack until we reach the return address of the main function, we need to add another 4 bytes to go from `ebp` to `ebp + 4` (the return address). So a total of 54 bytes (50 + 4).
 
@@ -118,7 +118,7 @@ buf2 + buf + space + buf (only 14 first bytes)
 20 + 19 + 1 + 14 = 54 bytes
 ```
 
-Since a ret2libc would requiere 12 bytes (4 bytes for the address of `system`, 4 bytes for the address of `exit` and 4 bytes for the address of "/bin/sh"), we're just going to use a ret2shellcode.
+Since a ret2libc would require 12 bytes (4 bytes for the address of `system`, 4 bytes for the address of `exit` and 4 bytes for the address of "/bin/sh"), we're just going to use a ret2shellcode.
 
 Check the [level1's walkthrough](../level1/walkthrough.md#ret2shellcode) for an explanation of the ret2shellcode technique.
 
