@@ -21,9 +21,25 @@ If you are able to make the source code more accurate, please feel free to open 
 
 We, sometimes, provided multiple solutions to a challenge. Simply because we thought it would be interesting to show different ways of solving a challenge. We're aware that we are missing a lot of solutions, but that was not the goal of this project.
 
+## Flags
+In this project, you will need different flags for `gcc` to compile your own source code so that it matches the original binary. We have provided those flags at the top of every `source.c` file. However, let us remind you of them here:
+
+- `-fno-stack-protector` : Disable stack canaries
+- `-z execstack` : Allow execution on the stack (NX bit disabled)
+- `-no-relro` : Disable RELRO (Relocation Read-Only)
+
+I've ignored some flags that are not useful or already enabled by default. Here is the default security flags for `gcc`:
+```bash
+level0@RainFall:/tmp$ gcc main.c
+level0@RainFall:/tmp$ checksec --file a.out
+RELRO           STACK CANARY      NX            PIE             RPATH      RUNPATH      FILE
+Partial RELRO   Canary found      NX enabled    No PIE          No RPATH   No RUNPATH   a.out
+```
+
 ## Tools
 We **only** used `GDB` for this project.  
 We heavily recommend you to stick to reading the assembly code and understanding the stack with your own head, it will not only be much more rewarding, but it will also help you understand the concepts better.
+> You could also not use any buffer overflow pattern generator for the more advanced of you.
 
 ## MADE WITH LOVE BY :
 
