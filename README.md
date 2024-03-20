@@ -26,7 +26,7 @@ In this project, you will need different flags for `gcc` to compile your own sou
 
 - `-fno-stack-protector` : Disable stack canaries
 - `-z execstack` : Allow execution on the stack (NX bit disabled)
-- `-no-relro` : Disable RELRO (Relocation Read-Only)
+- `-z norelro` : Disable RELRO (Relocation Read-Only)
 
 I've ignored some flags that are not useful or already enabled by default. Here is the default security flags for `gcc`:
 ```bash
